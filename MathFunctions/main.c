@@ -41,7 +41,7 @@ void printMenu() {
 }
 int getInput() {
 	int input;
-	printf("Input: ");
+	printf("\033[1;33mInput: \033[1;0m");
 	scanf_s("%u", &input);
 	int c;
 	while ((c = getchar()) != '\n' && c != EOF);
