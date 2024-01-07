@@ -23,7 +23,7 @@ static const int INF_NAN_EXP = 2047;
 static const unsigned long long MANTISSA_MASK = 0x000FFFFFFFFFFFFFull;
 static const unsigned long long SIGN_MASK = 0x8000000000000000ull;
 static const unsigned long long EXP_MASK = 0x7FF0000000000000ull;
-
+static const unsigned long long FIRST_BIT_OF_MANTISSA_MASK = 0x0008000000000000ull;
 
 static int getIntExponent(double x) {
 	return ((*(unsigned long long*) & x) & EXP_MASK) >> MANTISSA_BITS;
@@ -39,6 +39,10 @@ static unsigned long long getSign(double x) {
 }
 static unsigned long long getFractionalMantissaPart(double x, int exp) {
 	unsigned long long mask = MANTISSA_MASK >> exp;
+	return (*(unsigned long long*) & x) & mask;
+}
+static unsigned long long getFirstBitOfFractionalPart(double x, int exp) {
+	unsigned long long mask = FIRST_BIT_OF_MANTISSA_MASK >> exp;
 	return (*(unsigned long long*) & x) & mask;
 }
 
@@ -100,4 +104,32 @@ double myFloor(double x) {
 
 	unsigned long long result = *(unsigned long long*) & x ^ fractional;
 	return x > 0 ? *(double*)&result : *(double*)&result - 1;
+}
+
+// trunc - https://en.cppreference.com/w/c/numeric/math/trunc
+double myTrunc(double x) {
+	// myCeil and myFloor implement checks for +-0, +-inf and NaN
+	return x < 0 ? myCeil(x) : myFloor(x);
+}
+
+// round - https://en.cppreference.com/w/c/numeric/math/round
+double myRound(double x) {
+	if (isNan(x))
+		return NaN;
+	if (x == POS_INFINITY || x == NEG_INFINITY || x == POS_ZERO || x == NEG_ZERO)
+		return x;
+
+	int exp = getIntExponent(x) - BIAS;
+	if (exp >= 52) return x;
+	if (exp == -1) return (x > 0) ? 1 : -1; // (-1; -0.5] & [0.5; 1)
+	if (exp <= -2) return 0; // (-0.5; 0.5)
+
+	unsigned long long fractional = getFractionalMantissaPart(x, exp);
+	if (fractional == 0) return x;
+
+	unsigned long long v = getFirstBitOfFractionalPart(x, exp);
+	unsigned long long result = *(unsigned long long*) & x ^ fractional;
+
+	if (v == 0) return *(double*)&result;
+	else return (x > 0) ? *(double*)&result + 1 : *(double*)&result - 1;
 }

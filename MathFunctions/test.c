@@ -19,6 +19,8 @@ void testAll() {
 	test(testFabs, "fabs");
 	test(testCeil, "ceil");
 	test(testFloor, "floor");
+	test(testTrunc, "trunc");
+	test(testRound, "round");
 }
 int testAbs() {
 	for (int i = -1000; i <= 1000; i++) {
@@ -100,6 +102,64 @@ int testFloor() {
 
 	x = NaN;
 	if (!isNan(myFloor(x)))
+		return -1;
+
+	return 0;
+}
+int testTrunc() {
+	double x;
+	for (double i = -1000; i <= 1000; i += 0.1) {
+		if (myTrunc(i) != trunc(i))
+			return -1;
+	}
+
+	x = POS_ZERO;
+	if (myTrunc(x) != x)
+		return -1;
+
+	x = NEG_ZERO;
+	if (myTrunc(x) != x)
+		return -1;
+
+	x = POS_INFINITY;
+	if (myTrunc(x) != x)
+		return -1;
+
+	x = NEG_INFINITY;
+	if (myTrunc(x) != x)
+		return -1;
+
+	x = NaN;
+	if (!isNan(myTrunc(x)))
+		return -1;
+
+	return 0;
+}
+int testRound() {
+	double x;
+	for (double i = -1000; i <= 1000; i += 0.1) {
+		if (myRound(i) != round(i))
+			return -1;
+	}
+
+	x = POS_ZERO;
+	if (myRound(x) != x)
+		return -1;
+
+	x = NEG_ZERO;
+	if (myRound(x) != x)
+		return -1;
+
+	x = POS_INFINITY;
+	if (myRound(x) != x)
+		return -1;
+
+	x = NEG_INFINITY;
+	if (myRound(x) != x)
+		return -1;
+
+	x = NaN;
+	if (!isNan(myRound(x)))
 		return -1;
 
 	return 0;

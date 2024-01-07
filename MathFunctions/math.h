@@ -22,3 +22,5 @@ double myFabs(double x);
 
 double myCeil(double x);
 double myFloor(double x);
+double myTrunc(double x);
+double myRound(double x);

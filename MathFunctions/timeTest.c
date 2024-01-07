@@ -62,6 +62,8 @@ void timeTestAll() {
 	compareFabs();
 	compareCeil();
 	compareFloor();
+	compareTrunc();
+	compareRound();
 }
 
 void compareAbs() {
@@ -90,6 +92,20 @@ void compareFloor() {
 	FunctionInfo_dd f_floor = { floor, "floor" };
 	DoubleForInfo cycle = { -5000, 5000, 0.001 };
 	FunctionComparison_dd fc = { &f_myFloor, &f_floor, &cycle };
+	compareTime(&fc);
+}
+void compareTrunc() {
+	FunctionInfo_dd f_myTrunc = { myTrunc, "myTrunc" };
+	FunctionInfo_dd f_trunc = { trunc, "trunc" };
+	DoubleForInfo cycle = { -5000, 5000, 0.001 };
+	FunctionComparison_dd fc = { &f_myTrunc, &f_trunc, &cycle };
+	compareTime(&fc);
+}
+void compareRound() {
+	FunctionInfo_dd f_myRound = { myRound, "myRound" };
+	FunctionInfo_dd f_round = { round, "round" };
+	DoubleForInfo cycle = { -5000, 5000, 0.001 };
+	FunctionComparison_dd fc = { &f_myRound, &f_round, &cycle };
 	compareTime(&fc);
 }
 
