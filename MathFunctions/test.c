@@ -3,6 +3,7 @@
 #include "math.h"
 #include "test.h"
 
+static const double EPSILON = 1e-7;
 
 void test(int (*testFunction)(void), char* name) {
 	int result = testFunction();
@@ -21,6 +22,8 @@ void testAll() {
 	test(testFloor, "floor");
 	test(testTrunc, "trunc");
 	test(testRound, "round");
+	test(testFmod, "fmod");
+	test(testModf, "modf");
 }
 int testAbs() {
 	for (int i = -1000; i <= 1000; i++) {
@@ -160,6 +163,103 @@ int testRound() {
 
 	x = NaN;
 	if (!isNan(myRound(x)))
+		return -1;
+
+	return 0;
+}
+int testFmod() {
+	double x, y;
+	for (double i = -100; i <= 100; i += 0.1) {
+		for (double j = -100; j <= 100; j += 0.1) {
+			if (abs(myFmod(i, j) - fmod(i, j) > EPSILON))
+				return -1;
+		}
+	}
+
+	x = NaN;
+	y = 1;
+	if (!isNan(myFmod(x, y)))
+		return -1;
+
+	x = 1;
+	y = NaN;
+	if (!isNan(myFmod(x, y)))
+		return -1;
+
+	x = POS_ZERO;
+	y = 1;
+	if (myFmod(x, y) != x)
+		return -1;
+
+	x = NEG_ZERO;
+	y = 1;
+	if (myFmod(x, y) != x)
+		return -1;
+
+	x = POS_INFINITY;
+	y = 1;
+	if (!isNan(myFmod(x, y)))
+		return -1;
+
+	x = NEG_INFINITY;
+	y = 1;
+	if (!isNan(myFmod(x, y)))
+		return -1;
+
+	x = 1;
+	y = POS_ZERO;
+	if (!isNan(myFmod(x, y)))
+		return -1;
+
+	x = 1;
+	y = NEG_ZERO;
+	if (!isNan(myFmod(x, y)))
+		return -1;
+
+	x = 1;
+	y = POS_INFINITY;
+	if (myFmod(x, y) != x)
+		return -1;
+
+	x = 1;
+	y = NEG_INFINITY;
+	if (myFmod(x, y) != x)
+		return -1;
+
+	return 0;
+}
+int testModf() {
+	double int1, int2, frac1, frac2, x;
+	for (double i = -1000; i <= 1000; i += 0.01) {
+		frac1 = myModf(i, &int1);
+		frac2 = modf(i, &int2);
+		if (int1 != int2 || frac1 != frac2)
+			return -1;
+	}
+
+	x = POS_ZERO;
+	frac1 = myModf(x, &int1);
+	if (int1 != POS_ZERO || frac1 != POS_ZERO)
+		return -1;
+
+	x = NEG_ZERO;
+	frac1 = myModf(x, &int1);
+	if (int1 != NEG_ZERO || frac1 != NEG_ZERO)
+		return -1;
+
+	x = POS_INFINITY;
+	frac1 = myModf(x, &int1);
+	if (int1 != POS_INFINITY || frac1 != POS_ZERO)
+		return -1;
+
+	x = NEG_INFINITY;
+	frac1 = myModf(x, &int1);
+	if (int1 != NEG_INFINITY || frac1 != NEG_ZERO)
+		return -1;
+
+	x = NaN;
+	frac1 = myModf(x, &int1);
+	if (!isNan(int1) || !isNan(frac1))
 		return -1;
 
 	return 0;

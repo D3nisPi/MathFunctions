@@ -37,6 +37,10 @@ static unsigned long long getMantissa(double x) {
 static unsigned long long getSign(double x) {
 	return (*(unsigned long long*) & x) & SIGN_MASK;
 }
+static unsigned long long getIntegerMantissaPart(double x, int exp) {
+	unsigned long long mask = ~(MANTISSA_MASK >> exp) & MANTISSA_MASK;
+	return (*(unsigned long long*) & x) & mask;
+}
 static unsigned long long getFractionalMantissaPart(double x, int exp) {
 	unsigned long long mask = MANTISSA_MASK >> exp;
 	return (*(unsigned long long*) & x) & mask;
@@ -132,4 +136,60 @@ double myRound(double x) {
 
 	if (v == 0) return *(double*)&result;
 	else return (x > 0) ? *(double*)&result + 1 : *(double*)&result - 1;
+}
+
+// fmod - https://en.cppreference.com/w/c/numeric/math/fmod
+double myFmod(double x, double y) {
+	if (isNan(x) || isNan(y))
+		return NaN;
+	if ((x == POS_ZERO || x == NEG_ZERO) && y != 0)
+		return x;
+	if ((x == POS_INFINITY || x == NEG_INFINITY) && !isNan(y))
+		return NaN;
+	if ((y == POS_ZERO || y == NEG_ZERO) && !isNan(x))
+		return NaN;
+	if ((y == POS_INFINITY || y == NEG_INFINITY) && x != POS_INFINITY && x != NEG_INFINITY)
+		return x;
+
+	return x - myTrunc(x / y) * y;
+}
+
+// modf - https://en.cppreference.com/w/c/numeric/math/modf
+double myModf(double x, double* y) {
+	if (x == POS_ZERO || x == NEG_ZERO) {
+		*y = x;
+		return x;
+	}
+	if (x == POS_INFINITY) {
+		*y = x;
+		return POS_ZERO;
+	}
+	if (x == NEG_INFINITY) {
+		*y = x;
+		return POS_ZERO;
+	}
+	if (isNan(x)) {
+		*y = NaN;
+		return NaN;
+	}
+
+	unsigned long long sign = getSign(x);
+	unsigned long long exponent = getExponentULL(x);
+
+	int exp = (exponent >> MANTISSA_BITS) - BIAS;
+
+	if (exp >= 52) {
+		*y = x;
+		return 0;
+	}
+	if (exp <= -1) {
+		*y = 0;
+		return x;
+	}
+
+	unsigned long long integer = getIntegerMantissaPart(x, exp);
+	unsigned long long i_result = sign | exponent | integer;
+
+	*y = *(double*)&i_result;
+	return x - *(double*)&i_result;
 }

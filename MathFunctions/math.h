@@ -24,3 +24,5 @@ double myCeil(double x);
 double myFloor(double x);
 double myTrunc(double x);
 double myRound(double x);
+double myFmod(double x, double y);
+double myModf(double x, double* y);

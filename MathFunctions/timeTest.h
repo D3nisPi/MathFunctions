@@ -78,6 +78,8 @@ void compareCeil(void);
 void compareFloor(void);
 void compareTrunc(void);
 void compareRound(void);
+void compareFmod(void);
+void compareModf(void);
 
 
 
