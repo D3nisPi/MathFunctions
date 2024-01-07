@@ -1,11 +1,8 @@
 #include <stdio.h>
 #include <math.h>
 #include "math.h"
+#include "test.h"
 
-void test(int (*testFunction)(void), char* name);
-void testAll(void);
-int testAbs(void);
-int testFabs(void);
 
 void test(int (*testFunction)(void), char* name) {
 	int result = testFunction();

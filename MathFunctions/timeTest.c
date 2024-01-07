@@ -3,18 +3,79 @@
 #include <math.h>
 #include "math.h"
 #include "timeTest.h"
+#include <stdint.h>
 
+static void printError(void* arg, ...) {
+	printf(stderr, "An error occurred when using overloaded functions");
+}
+
+// functions overloading
+
+#define testTime_0(func, outer_cycle) _Generic((func),\
+	double (*)(double): _Generic((outer_cycle),\
+		DoubleForInfo*: testTime_DoubleDouble,\
+		default: printError),\
+	int (*)(int): _Generic((outer_cycle),\
+		IntForInfo*: testTime_IntInt,\
+		default: printError),\
+	double (*)(double, double*): _Generic((outer_cycle),\
+		DoubleForInfo*: testTime_DoubleDoubleDoubleref,\
+		default: printError),\
+	double (*)(double, int*): _Generic((outer_cycle),\
+		DoubleForInfo*: testTime_DoubleDoubleIntref,\
+		default: printError),\
+	default: printError)(func, outer_cycle)
+
+#define testTime_1(func, outer_cycle, inner_cycle) _Generic((func),\
+	double (*)(double, double): _Generic((outer_cycle),\
+		DoubleForInfo*: _Generic((inner_cycle),\
+			DoubleForInfo*: testTime_DoubleDoubleDouble,\
+			default: printError),\
+		default: printError),\
+	double (*)(double, int):_Generic((outer_cycle),\
+		DoubleForInfo*: _Generic((inner_cycle),\
+			IntForInfo*: testTime_DoubleDoubleInt,\
+			default: printError),\
+		default: printError),\
+	default: printError)(func, outer_cycle, inner_cycle)
+
+#define testTime_N(_0, _1, N,...) testTime_##N
+#define testTime(func, outer_cycle, ...) \
+    testTime_N(-1, ##__VA_ARGS__, 1, 0)(func, outer_cycle, ##__VA_ARGS__)
+
+
+
+#define compareTime(fc) _Generic((fc),\
+	FunctionComparison_dd*: compareTime_DoubleDouble,\
+	FunctionComparison_ii*: compareTime_IntInt,\
+	FunctionComparison_ddd*: compareTime_DoubleDoubleDouble,\
+	FunctionComparison_dddp*: compareTime_DoubleDoubleDoubleref,\
+	FunctionComparison_ddip*: compareTime_DoubleDoubleIntref,\
+	FunctionComparison_ddi*: compareTime_DoubleDoubleInt,\
+	default: printError) (fc)
+	
 
 
 
 void timeTestAll() {
-	IntForInfo intFor = { -10000000, 10000000, 1 };
-	DoubleForInfo doubleFor = { -10000, 10000, 0.001 };
-
-	compareTime_IntInt(myAbs, abs, "myAbs", "abs", &intFor);
-	compareTime_DoubleDouble(myFabs, fabs, "myFabs", "fabs", &doubleFor);
+	compareAbs();
+	compareFabs();
 }
 
+void compareAbs() {
+	FunctionInfo_ii f_myAbs = { myAbs, "myAbs" };
+	FunctionInfo_ii f_abs = { abs, "abs" };
+	IntForInfo cycle = { -10000000, 10000000, 1 };
+	FunctionComparison_ii fc = { &f_myAbs, &f_abs, &cycle };
+	compareTime(&fc);
+}
+void compareFabs() {
+	FunctionInfo_ii f_myAbs = { myFabs, "myFabs" };
+	FunctionInfo_ii f_abs = { fabs, "fabs" };
+	DoubleForInfo cycle = { -10000, 10000, 0.001 };
+	FunctionComparison_dd fc = { &f_myAbs, &f_abs, &cycle };
+	compareTime(&fc);
+}
 
 unsigned long testTime_DoubleDouble(double (*function)(double), DoubleForInfo* cycle) {
 	clock_t before = clock();
@@ -66,52 +127,38 @@ unsigned long testTime_DoubleDoubleInt(double (*function)(double, int), DoubleFo
 	return (clock() - before) * 1000 / CLOCKS_PER_SEC;
 }
 
-void compareTime_DoubleDouble(double (*myFunction)(double), double (*mathFunction)(double),
-	char* name1, char* name2, DoubleForInfo* cycle) {
-
-	unsigned long time1 = testTime_DoubleDouble(myFunction, cycle);
-	unsigned long time2 = testTime_DoubleDouble(mathFunction, cycle);
-	printResult(time1, time2, name1, name2);
+void compareTime_DoubleDouble(FunctionComparison_dd* fc) {
+	unsigned long time1 = testTime(fc->funcInfo1->function, fc->cycle);
+	unsigned long time2 = testTime(fc->funcInfo2->function, fc->cycle);
+	printResult(time1, time2, fc->funcInfo1->functionName, fc->funcInfo2->functionName);
 }
-void compareTime_IntInt(int (*myFunction)(int), int (*mathFunction)(int), 
-	char* name1, char* name2, IntForInfo* cycle) {
-
-	unsigned long time1 = testTime_IntInt(myFunction, cycle);
-	unsigned long time2 = testTime_IntInt(mathFunction, cycle);
-	printResult(time1, time2, name1, name2);
+void compareTime_IntInt(FunctionComparison_ii* fc) {
+	unsigned long time1 = testTime(fc->funcInfo1->function, fc->cycle);
+	unsigned long time2 = testTime(fc->funcInfo2->function, fc->cycle);
+	printResult(time1, time2, fc->funcInfo1->functionName, fc->funcInfo2->functionName);
 }
-void compareTime_DoubleDoubleDouble(double (*myFunction)(double, double), double (*mathFunction)(double, double),
-	char* name1, char* name2,
-	DoubleForInfo* cycle1, DoubleForInfo* cycle2) {
-
-	unsigned long time1 = testTime_DoubleDoubleDouble(myFunction, cycle1, cycle2);
-	unsigned long time2 = testTime_DoubleDoubleDouble(mathFunction, cycle1, cycle2);
-	printResult(time1, time2, name1, name2);
+void compareTime_DoubleDoubleDouble(FunctionComparison_ddd* fc) {
+	unsigned long time1 = testTime(fc->funcInfo1->function, fc->cycle1, fc->cycle2);
+	unsigned long time2 = testTime(fc->funcInfo2->function, fc->cycle1, fc->cycle2);
+	printResult(time1, time2, fc->funcInfo1->functionName, fc->funcInfo2->functionName);
 }
 
-void compareTime_DoubleDoubleDoubleref(double (*myFunction)(double, double*), double (*mathFunction)(double, double*),
-	char* name1, char* name2, DoubleForInfo* cycle) {
-
-	unsigned long time1 = testTime_DoubleDoubleDoubleref(myFunction, cycle);
-	unsigned long time2 = testTime_DoubleDoubleDoubleref(mathFunction, cycle);
-	printResult(time1, time2, name1, name2);
+void compareTime_DoubleDoubleDoubleref(FunctionComparison_dddp* fc) {
+	unsigned long time1 = testTime(fc->funcInfo1->function, fc->cycle);
+	unsigned long time2 = testTime(fc->funcInfo2->function, fc->cycle);
+	printResult(time1, time2, fc->funcInfo1->functionName, fc->funcInfo2->functionName);
 }
 
-void compareTime_DoubleDoubleIntref(double (*myFunction)(double, int*), double (*mathFunction)(double, int*),
-	char* name1, char* name2, DoubleForInfo* cycle) {
-
-	unsigned long time1 = testTime_DoubleDoubleIntref(myFunction, cycle);
-	unsigned long time2 = testTime_DoubleDoubleIntref(mathFunction, cycle);
-	printResult(time1, time2, name1, name2);
+void compareTime_DoubleDoubleIntref(FunctionComparison_ddip* fc) {
+	unsigned long time1 = testTime(fc->funcInfo1->function, fc->cycle);
+	unsigned long time2 = testTime(fc->funcInfo2->function, fc->cycle);
+	printResult(time1, time2, fc->funcInfo1->functionName, fc->funcInfo2->functionName);
 }
 
-void compareTime_DoubleDoubleInt(double (*myFunction)(double, int), double (*mathFunction)(double, int),
-	char* name1, char* name2, 
-	DoubleForInfo* cycle1, IntForInfo* cycle2) {
-
-	unsigned long time1 = testTime_DoubleDoubleInt(myFunction, cycle1, cycle2);
-	unsigned long time2 = testTime_DoubleDoubleInt(mathFunction, cycle1, cycle2);
-	printResult(time1, time2, name1, name2);
+void compareTime_DoubleDoubleInt(FunctionComparison_ddi* fc) {
+	unsigned long time1 = testTime(fc->funcInfo1->function, fc->cycle1, fc->cycle2);
+	unsigned long time2 = testTime(fc->funcInfo2->function, fc->cycle1, fc->cycle2);
+	printResult(time1, time2, fc->funcInfo1->functionName, fc->funcInfo2->functionName);
 }
 
 
