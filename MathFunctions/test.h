@@ -5,3 +5,4 @@ void testAll(void);
 int testAbs(void);
 int testFabs(void);
 int testCeil(void);
+int testFloor();

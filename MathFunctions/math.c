@@ -82,3 +82,22 @@ double myCeil(double x) {
 	double r = x > 0 ? *(double*)&result + 1 : *(double*)&result;
 	return r;
 }
+
+// floor - https://en.cppreference.com/w/c/numeric/math/floor
+double myFloor(double x) {
+	if (isNan(x))
+		return NaN;
+	if (x == POS_INFINITY || x == NEG_INFINITY || x == POS_ZERO || x == NEG_ZERO)
+		return x;
+
+
+	int exp = getIntExponent(x) - BIAS;
+	if (exp >= 52) return x;
+	if (exp <= -1) return (x < 0) ? -1 : 0; // (-1; 1)
+
+	unsigned long long fractional = getFractionalMantissaPart(x, exp);
+	if (fractional == 0) return x;
+
+	unsigned long long result = *(unsigned long long*) & x ^ fractional;
+	return x > 0 ? *(double*)&result : *(double*)&result - 1;
+}

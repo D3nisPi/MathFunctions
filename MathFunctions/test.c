@@ -18,6 +18,7 @@ void testAll() {
 	test(testAbs, "abs");
 	test(testFabs, "fabs");
 	test(testCeil, "ceil");
+	test(testFloor, "floor");
 }
 int testAbs() {
 	for (int i = -1000; i <= 1000; i++) {
@@ -70,6 +71,35 @@ int testCeil() {
 
 	x = NaN;
 	if (!isNan(myCeil(x)))
+		return -1;
+
+	return 0;
+}
+int testFloor() {
+	double x;
+	for (double i = -1000; i <= 1000; i += 0.01) {
+		if (myFloor(i) != floor(i))
+			return -1;
+	}
+
+	x = POS_ZERO;
+	if (myFloor(x) != x)
+		return -1;
+
+	x = NEG_ZERO;
+	if (myFloor(x) != x)
+		return -1;
+
+	x = POS_INFINITY;
+	if (myFloor(x) != x)
+		return -1;
+
+	x = NEG_INFINITY;
+	if (myFloor(x) != x)
+		return -1;
+
+	x = NaN;
+	if (!isNan(myFloor(x)))
 		return -1;
 
 	return 0;

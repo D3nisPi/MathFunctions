@@ -21,3 +21,4 @@ int myAbs(int x);
 double myFabs(double x);
 
 double myCeil(double x);
+double myFloor(double x);

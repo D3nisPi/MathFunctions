@@ -61,6 +61,7 @@ void timeTestAll() {
 	compareAbs();
 	compareFabs();
 	compareCeil();
+	compareFloor();
 }
 
 void compareAbs() {
@@ -80,8 +81,15 @@ void compareFabs() {
 void compareCeil() {
 	FunctionInfo_dd f_myCeil = { myCeil, "myCeil" };
 	FunctionInfo_dd f_ceil = { ceil, "ceil" };
-	DoubleForInfo cycle = { -10000, 10000, 0.001 };
+	DoubleForInfo cycle = { -5000, 5000, 0.001 };
 	FunctionComparison_dd fc = { &f_myCeil, &f_ceil, &cycle };
+	compareTime(&fc);
+}
+void compareFloor() {
+	FunctionInfo_dd f_myFloor = { myFloor, "myFloor" };
+	FunctionInfo_dd f_floor = { floor, "floor" };
+	DoubleForInfo cycle = { -5000, 5000, 0.001 };
+	FunctionComparison_dd fc = { &f_myFloor, &f_floor, &cycle };
 	compareTime(&fc);
 }
 
