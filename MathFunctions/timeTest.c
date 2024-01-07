@@ -60,6 +60,7 @@ static void printError(void* arg, ...) {
 void timeTestAll() {
 	compareAbs();
 	compareFabs();
+	compareCeil();
 }
 
 void compareAbs() {
@@ -70,10 +71,17 @@ void compareAbs() {
 	compareTime(&fc);
 }
 void compareFabs() {
-	FunctionInfo_ii f_myAbs = { myFabs, "myFabs" };
-	FunctionInfo_ii f_abs = { fabs, "fabs" };
+	FunctionInfo_dd f_myFabs = { myFabs, "myFabs" };
+	FunctionInfo_dd f_fabs = { fabs, "fabs" };
 	DoubleForInfo cycle = { -10000, 10000, 0.001 };
-	FunctionComparison_dd fc = { &f_myAbs, &f_abs, &cycle };
+	FunctionComparison_dd fc = { &f_myFabs, &f_fabs, &cycle };
+	compareTime(&fc);
+}
+void compareCeil() {
+	FunctionInfo_dd f_myCeil = { myCeil, "myCeil" };
+	FunctionInfo_dd f_ceil = { ceil, "ceil" };
+	DoubleForInfo cycle = { -10000, 10000, 0.001 };
+	FunctionComparison_dd fc = { &f_myCeil, &f_ceil, &cycle };
 	compareTime(&fc);
 }
 

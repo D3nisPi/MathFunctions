@@ -19,3 +19,5 @@ int isNan(double);
 
 int myAbs(int x);
 double myFabs(double x);
+
+double myCeil(double x);

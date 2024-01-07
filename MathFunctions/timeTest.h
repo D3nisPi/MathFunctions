@@ -74,6 +74,7 @@ typedef struct {
 
 void compareAbs(void);
 void compareFabs(void);
+void compareCeil(void);
 
 
 

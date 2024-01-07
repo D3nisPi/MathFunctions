@@ -17,6 +17,7 @@ void test(int (*testFunction)(void), char* name) {
 void testAll() {
 	test(testAbs, "abs");
 	test(testFabs, "fabs");
+	test(testCeil, "ceil");
 }
 int testAbs() {
 	for (int i = -1000; i <= 1000; i++) {
@@ -44,4 +45,32 @@ int testFabs() {
 		return -1;
 }
 
+int testCeil() {
+	double x;
+	for (double i = -1000; i <= 1000; i += 0.01) {
+		if (myCeil(i) != ceil(i))
+			return -1;
+	}
 
+	x = POS_ZERO;
+	if (myCeil(x) != x)
+		return -1;
+
+	x = NEG_ZERO;
+	if (myCeil(x) != x)
+		return -1;
+
+	x = POS_INFINITY;
+	if (myCeil(x) != x)
+		return -1;
+
+	x = NEG_INFINITY;
+	if (myCeil(x) != x)
+		return -1;
+
+	x = NaN;
+	if (!isNan(myCeil(x)))
+		return -1;
+
+	return 0;
+}

@@ -37,6 +37,10 @@ static unsigned long long getMantissa(double x) {
 static unsigned long long getSign(double x) {
 	return (*(unsigned long long*) & x) & SIGN_MASK;
 }
+static unsigned long long getFractionalMantissaPart(double x, int exp) {
+	unsigned long long mask = MANTISSA_MASK >> exp;
+	return (*(unsigned long long*) & x) & mask;
+}
 
 
 int isNan(double x) {
@@ -57,4 +61,24 @@ double myFabs(register double x) {
 	// NaN -> NaN with plus sign (still NaN)
 
 	return x < 0 ? -x : x;
+}
+
+// ceil = https://en.cppreference.com/w/c/numeric/math/ceil
+double myCeil(double x) {
+	if (isNan(x))
+		return NaN;
+	if (x == POS_INFINITY || x == NEG_INFINITY || x == POS_ZERO || x == NEG_ZERO)
+		return x;
+
+	int exp = getIntExponent(x) - BIAS;
+
+	if (exp >= 52) return x;
+	if (exp <= -1) return (x < 0) ? 0 : 1; // (-1; 1)
+
+	unsigned long long fractional = getFractionalMantissaPart(x, exp);
+	if (fractional == 0) return x;
+
+	unsigned long long result = *(unsigned long long*)&x ^ fractional;
+	double r = x > 0 ? *(double*)&result + 1 : *(double*)&result;
+	return r;
 }
