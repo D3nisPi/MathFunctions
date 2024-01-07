@@ -45,18 +45,16 @@ int isNan(double x) {
 	return exp == INF_NAN_EXP && mantissa != 0;
 }
 // abs - https://en.cppreference.com/w/c/numeric/math/abs
-int myAbs(int x) {
+int myAbs(register int x) {
 	return x < 0 ? -x : x;
 }
 
 // fabs - https://en.cppreference.com/w/c/numeric/math/fabs
-double myFabs(double x) {
-	if (x == POS_ZERO || x == NEG_ZERO)
-		return POS_ZERO;
-	if (x == POS_INFINITY || x == NEG_INFINITY)
-		return POS_INFINITY;
-	if (isNan(x))
-		return NaN;
+double myFabs(register double x) {	
+	// checking x for +-inf/ +-0 and NaN is not necessary because
+	// +-0 -> +0
+	// +-inf -> +inf
+	// NaN -> NaN with plus sign (still NaN)
 
 	return x < 0 ? -x : x;
 }

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "test.h"
+#include "timeTest.h"
 
 void printMenu();
 int getInput();
@@ -11,12 +12,16 @@ int main() {
 		int input = getInput();
 		switch (input) {
 		case 1:
-			// tests
+			printf("--------------------\n");
 			printf("Tests:\n");
+			testAll();
+			printf("--------------------\n");
 			break;
 		case 2:
-			// time comparison
+			printf("--------------------\n");
 			printf("Time comparison:\n");
+			timeTestAll();
+			printf("--------------------\n");
 			break;
 		case 3:
 			printMenu();

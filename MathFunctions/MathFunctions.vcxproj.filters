@@ -24,12 +24,18 @@
     <ClCompile Include="test.c">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="timeTest.c">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="math.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="test.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="timeTest.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
