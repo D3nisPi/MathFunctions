@@ -62,15 +62,37 @@ static void printLine() {
 void timeTestAll() {
 	compareAbs();
 	compareFabs();
+
 	compareCeil();
 	compareFloor();
 	compareTrunc();
 	compareRound();
+
 	compareFmod();
 	compareModf();
 	compareFrexp();
 	compareLdexp();
+
+	compareSin();
+	compareCos();
+	compareTan();
+
+	compareAsin();
+	compareAcos();
+	compareAtan();
+	compareAtan2();
+
+	compareSinh();
+	compareCosh();
+	compareTanh();
+
+	compareExp();
+	compareLog();
+	compareLog10();
+	comparePow();
+	compareSqrt();
 }
+
 
 void compareAbs() {
 	printLine();
@@ -153,6 +175,51 @@ void compareLdexp() {
 	IntForInfo cycle2 = { -100, 100, 1 };
 	FunctionComparison_ddi fc = { &f_myLdexp, &f_ldexp, &cycle, &cycle2 };
 	compareTime(&fc);
+}
+void compareSin() {
+
+}
+void compareCos() {
+
+}
+void compareTan() {
+
+}
+void compareAsin() {
+
+}
+void compareAcos() {
+
+}
+void compareAtan() {
+
+}
+void compareAtan2() {
+
+}
+void compareSinh() {
+
+}
+void compareCosh() {
+
+}
+void compareTanh() {
+
+}
+void compareExp() {
+
+}
+void compareLog() {
+
+}
+void compareLog10() {
+
+}
+void comparePow() {
+
+}
+void compareSqrt() {
+
 }
 
 

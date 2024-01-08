@@ -74,15 +74,35 @@ typedef struct {
 
 void compareAbs(void);
 void compareFabs(void);
+
 void compareCeil(void);
 void compareFloor(void);
 void compareTrunc(void);
 void compareRound(void);
+
 void compareFmod(void);
 void compareModf(void);
 void compareFrexp(void);
 void compareLdexp(void);
 
+void compareSin(void);
+void compareCos(void);
+void compareTan(void);
+
+void compareAsin(void);
+void compareAcos(void);
+void compareAtan(void);
+void compareAtan2(void);
+
+void compareSinh(void);
+void compareCosh(void);
+void compareTanh(void);
+
+void compareExp(void);
+void compareLog(void);
+void compareLog10(void);
+void comparePow(void);
+void compareSqrt(void);
 
 
 void timeTestAll();

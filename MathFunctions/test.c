@@ -18,14 +18,36 @@ void test(int (*testFunction)(void), char* name) {
 void testAll() {
 	test(testAbs, "abs");
 	test(testFabs, "fabs");
+
 	test(testCeil, "ceil");
 	test(testFloor, "floor");
 	test(testTrunc, "trunc");
 	test(testRound, "round");
+
 	test(testFmod, "fmod");
 	test(testModf, "modf");
 	test(testFrexp, "frexp");
 	test(testLdexp, "ldexp");
+
+	test(testSin, "sin");
+	test(testCos, "cos");
+	test(testTan, "tan");
+
+	test(testAsin, "asin");
+	test(testAcos, "acos");
+	test(testAtan, "atan");
+	test(testAtan2, "atan2");
+
+	test(testSinh, "sinh");
+	test(testCosh, "cosh");
+	test(testTanh, "tanh");
+
+	test(testExp, "exp");
+	test(testLog, "log");
+	test(testLog10, "log10");
+	test(testPow, "pow");
+	test(testSqrt, "sqrt");
+
 }
 int testAbs() {
 	for (int i = -1000; i <= 1000; i++) {
@@ -326,5 +348,54 @@ int testLdexp() {
 	x = NEG_ZERO; exp = 10;
 	if (abs(myLdexp(x, exp) - ldexp(x, exp)) > EPSILON)
 		return -1;
+
+}
+
+int testSin() {
+
+}
+int testCos() {
+
+}
+int testTan() {
+
+}
+
+int testAsin() {
+
+}
+int testAcos() {
+
+}
+int testAtan() {
+
+}
+int testAtan2() {
+
+}
+
+int testSinh() {
+
+}
+int testCosh() {
+
+}
+int testTanh() {
+
+}
+
+int testExp() {
+
+}
+int testLog() {
+
+}
+int testLog10() {
+
+}
+int testPow() {
+
+}
+int testSqrt() {
 
 }

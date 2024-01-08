@@ -252,3 +252,78 @@ double myLdexp(double x, int y) {
 	unsigned long long e = exp + y;
 	return sign | (e << MANTISSA_BITS) | getMantissa(x);
 }
+
+// sin - https://en.cppreference.com/w/c/numeric/math/sin
+double mySin(double x) {
+
+}
+
+// cos - https://en.cppreference.com/w/c/numeric/math/cos
+double myCos(double x) {
+
+}
+
+// tan - https://en.cppreference.com/w/c/numeric/math/tan
+double myTan(double x) {
+
+}
+
+// asin - https://en.cppreference.com/w/c/numeric/math/asin
+double myAsin(double x) {
+
+}
+
+// acos - https://en.cppreference.com/w/c/numeric/math/acos
+double myAcos(double x) {
+
+}
+
+// atan - https://en.cppreference.com/w/c/numeric/math/atan
+double myAtan(double x) {
+
+}
+
+// atan2 - https://en.cppreference.com/w/c/numeric/math/atan2
+double myAtan2(double x, double y) {
+
+}
+
+// sinh - https://en.cppreference.com/w/c/numeric/math/sinh
+double mySinh(double x) {
+
+}
+
+// cosh - https://en.cppreference.com/w/c/numeric/math/cosh
+double myCosh(double x) {
+
+}
+
+// tanh - https://en.cppreference.com/w/c/numeric/math/tanh
+double myTanh(double x) {
+
+}
+
+// exp - https://en.cppreference.com/w/c/numeric/math/exp
+double myExp(double x) {
+
+}
+
+// log - https://en.cppreference.com/w/c/numeric/math/log
+double myLog(double x) {
+
+}
+
+// log10 - https://en.cppreference.com/w/c/numeric/math/log10
+double myLog10(double x) {
+
+}
+
+// pow - https://en.cppreference.com/w/c/numeric/math/pow
+double myPow(double x, double y) {
+
+}
+
+// sqrt - https://en.cppreference.com/w/c/numeric/math/sqrt
+double mySqrt(double x) {
+
+}

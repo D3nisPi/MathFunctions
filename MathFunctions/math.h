@@ -24,7 +24,27 @@ double myCeil(double x);
 double myFloor(double x);
 double myTrunc(double x);
 double myRound(double x);
+
 double myFmod(double x, double y);
 double myModf(double x, double* y);
 double myFrexp(double x, int* y);
 double myLdexp(double x, int y);
+
+double mySin(double x);
+double myCos(double x);
+double myTan(double x);
+
+double myAsin(double x);
+double myAcos(double x);
+double myAtan(double x);
+double myAtan2(double x, double y);
+
+double mySinh(double x);
+double myCosh(double x);
+double myTanh(double x);
+
+double myExp(double x);
+double myLog(double x);
+double myLog10(double x);
+double myPow(double x, double y);
+double mySqrt(double x);
