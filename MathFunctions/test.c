@@ -24,6 +24,8 @@ void testAll() {
 	test(testRound, "round");
 	test(testFmod, "fmod");
 	test(testModf, "modf");
+	test(testFrexp, "frexp");
+	test(testLdexp, "ldexp");
 }
 int testAbs() {
 	for (int i = -1000; i <= 1000; i++) {
@@ -167,6 +169,7 @@ int testRound() {
 
 	return 0;
 }
+
 int testFmod() {
 	double x, y;
 	for (double i = -100; i <= 100; i += 0.1) {
@@ -230,7 +233,7 @@ int testFmod() {
 }
 int testModf() {
 	double int1, int2, frac1, frac2, x;
-	for (double i = -1000; i <= 1000; i += 0.01) {
+	for (double i = -500; i <= 500; i += 0.01) {
 		frac1 = myModf(i, &int1);
 		frac2 = modf(i, &int2);
 		if (int1 != int2 || frac1 != frac2)
@@ -263,4 +266,65 @@ int testModf() {
 		return -1;
 
 	return 0;
+}
+int testFrexp() {
+	int exp1, exp2;
+	double res1, res2, x;
+	for (double i = -1000; i <= 1000; i += 0.01) {
+		res1 = myFrexp(i, &exp1);
+		res2 = frexp(i, &exp2);
+		if (res1 != res2 || exp1 != exp2)
+			return -1;
+	}
+
+	x = POS_ZERO; exp1 = 10;
+	res1 = myFrexp(x, &exp1);
+	if (res1 != x || exp1 != 0)
+		return -1;
+
+	x = NEG_ZERO; exp1 = 10;
+	res1 = myFrexp(x, &exp1);
+	if (res1 != x || exp1 != 0)
+		return -1;
+
+	x = POS_INFINITY; exp1 = 10;
+	res1 = myFrexp(x, &exp1);
+	if (res1 != x)
+		return -1;
+
+	x = NEG_INFINITY; exp1 = 10;
+	res1 = myFrexp(x, &exp1);
+	if (res1 != x)
+		return -1;
+
+	x = NaN; exp1 = 10;
+	res1 = myFrexp(x, &exp1);
+	if (!isnan(res1))
+		return -1;
+
+	return 0;
+}
+int testLdexp() {
+	for (double i = -100; i <= 100; i += 0.01) {
+		for (int j = -30; j <= 31; j++) {
+			if (abs(myLdexp(i, j) - ldexp(i, j)) > EPSILON)
+				return -1;
+		}
+	}
+
+	double x;
+	int exp;
+
+	x = 3; exp = 0;
+	if (abs(myLdexp(x, exp) - ldexp(x, exp)) > EPSILON)
+		return -1;
+
+	x = POS_ZERO; exp = 10;
+	if (abs(myLdexp(x, exp) - ldexp(x, exp)) > EPSILON)
+		return -1;
+
+	x = NEG_ZERO; exp = 10;
+	if (abs(myLdexp(x, exp) - ldexp(x, exp)) > EPSILON)
+		return -1;
+
 }

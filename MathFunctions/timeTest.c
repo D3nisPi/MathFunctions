@@ -66,6 +66,8 @@ void timeTestAll() {
 	compareRound();
 	compareFmod();
 	compareModf();
+	compareFrexp();
+	compareLdexp();
 }
 
 void compareAbs() {
@@ -125,6 +127,22 @@ void compareModf() {
 	FunctionComparison_dddp fc = { &f_myModf, &f_modf, &cycle};
 	compareTime(&fc);
 }
+void compareFrexp() {
+	FunctionInfo_ddip f_myFrexp = { myFrexp, "myFrexp" };
+	FunctionInfo_ddip f_frexp = { frexp, "frexp" };
+	DoubleForInfo cycle = { -5000, 5000, 0.001 };
+	FunctionComparison_ddip fc = { &f_myFrexp, &f_frexp, &cycle };
+	compareTime(&fc);
+}
+void compareLdexp() {
+	FunctionInfo_ddi f_myLdexp = { myLdexp, "myLdexp" };
+	FunctionInfo_ddi f_ldexp = { ldexp, "ldexp" };
+	DoubleForInfo cycle = { -100, 100, 0.01 };
+	IntForInfo cycle2 = { -100, 100, 1 };
+	FunctionComparison_ddi fc = { &f_myLdexp, &f_ldexp, &cycle, &cycle2 };
+	compareTime(&fc);
+}
+
 
 unsigned long testTime_DoubleDouble(double (*function)(double), DoubleForInfo* cycle) {
 	clock_t before = clock();

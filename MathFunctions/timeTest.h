@@ -80,6 +80,8 @@ void compareTrunc(void);
 void compareRound(void);
 void compareFmod(void);
 void compareModf(void);
+void compareFrexp(void);
+void compareLdexp(void);
 
 
 

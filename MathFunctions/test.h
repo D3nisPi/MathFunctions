@@ -10,3 +10,5 @@ int testTrunc(void);
 int testRound(void);
 int testFmod(void);
 int testModf(void);
+int testFrexp(void);
+int testLdexp(void);

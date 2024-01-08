@@ -26,3 +26,5 @@ double myTrunc(double x);
 double myRound(double x);
 double myFmod(double x, double y);
 double myModf(double x, double* y);
+double myFrexp(double x, int* y);
+double myLdexp(double x, int y);

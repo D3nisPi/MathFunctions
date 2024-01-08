@@ -25,6 +25,7 @@ static const unsigned long long SIGN_MASK = 0x8000000000000000ull;
 static const unsigned long long EXP_MASK = 0x7FF0000000000000ull;
 static const unsigned long long FIRST_BIT_OF_MANTISSA_MASK = 0x0008000000000000ull;
 
+
 static int getIntExponent(double x) {
 	return ((*(unsigned long long*) & x) & EXP_MASK) >> MANTISSA_BITS;
 }
@@ -37,6 +38,8 @@ static unsigned long long getMantissa(double x) {
 static unsigned long long getSign(double x) {
 	return (*(unsigned long long*) & x) & SIGN_MASK;
 }
+
+
 static unsigned long long getIntegerMantissaPart(double x, int exp) {
 	unsigned long long mask = ~(MANTISSA_MASK >> exp) & MANTISSA_MASK;
 	return (*(unsigned long long*) & x) & mask;
@@ -48,6 +51,17 @@ static unsigned long long getFractionalMantissaPart(double x, int exp) {
 static unsigned long long getFirstBitOfFractionalPart(double x, int exp) {
 	unsigned long long mask = FIRST_BIT_OF_MANTISSA_MASK >> exp;
 	return (*(unsigned long long*) & x) & mask;
+}
+
+
+const int isNan_(unsigned long long mantissa, int exp) {
+	return exp == INF_NAN_EXP && mantissa != 0;
+}
+const int isPosNegZero(unsigned long long mantissa, int exp) {
+	return exp == 0 && mantissa == 0;
+}
+const int isPosNegInfinity(unsigned long long mantissa, int exp) {
+	return exp == INF_NAN_EXP && mantissa == 0;
 }
 
 
@@ -192,4 +206,49 @@ double myModf(double x, double* y) {
 
 	*y = *(double*)&i_result;
 	return x - *(double*)&i_result;
+}
+
+// frexp - https://en.cppreference.com/w/c/numeric/math/frexp
+double myFrexp(double x, int* y) {
+	const unsigned long long MASK = 0x3FE0000000000000ull;
+
+	int exp = getIntExponent(x);
+	unsigned long long sign = getSign(x);
+	unsigned long long mantissa = getMantissa(x);
+
+	if (isPosNegZero(mantissa, exp)) { // +- 0
+		*y = 0;
+		return x;
+	}
+	if (isPosNegInfinity(mantissa, exp)) return x; // +- inf
+	if (isNan_(mantissa, exp)) return NaN; // NaN
+	 
+	*y = exp - BIAS + 1;
+	mantissa |= sign | MASK;
+	return *(double*)&mantissa;
+}
+
+// ldexp - https://en.cppreference.com/w/c/numeric/math/ldexp
+// if overflow occurs, POS_INF/NEG_INF is returned
+// if underflow occurs, POS_ZERO/NEG_ZERO is returned
+double myLdexp(double x, int y) {
+	if (isNan(x))
+		return NaN;
+	if (y == 0 || x == POS_INFINITY || x == NEG_INFINITY || x == POS_ZERO || x == NEG_ZERO)
+		return x;
+
+	int exp = getIntExponent(x);
+	unsigned long long sign = getSign(x);
+
+	// overflow
+	if (exp + y >= INF_NAN_EXP) {
+		return sign == 0 ? POS_INFINITY : NEG_INFINITY;
+	}
+	// underflow
+	else if (exp + y < 0) {
+		return sign == 0 ? POS_ZERO : NEG_ZERO;
+	}
+
+	unsigned long long e = exp + y;
+	return sign | (e << MANTISSA_BITS) | getMantissa(x);
 }
