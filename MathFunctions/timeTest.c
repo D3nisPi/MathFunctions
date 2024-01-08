@@ -55,7 +55,9 @@ static void printError(void* arg, ...) {
 	default: printError) (fc)
 	
 
-
+static void printLine() {
+	printf("----------------------------------------\n");
+}
 
 void timeTestAll() {
 	compareAbs();
@@ -71,6 +73,7 @@ void timeTestAll() {
 }
 
 void compareAbs() {
+	printLine();
 	FunctionInfo_ii f_myAbs = { myAbs, "myAbs" };
 	FunctionInfo_ii f_abs = { abs, "abs" };
 	IntForInfo cycle = { -10000000, 10000000, 1 };
@@ -78,6 +81,7 @@ void compareAbs() {
 	compareTime(&fc);
 }
 void compareFabs() {
+	printLine();
 	FunctionInfo_dd f_myFabs = { myFabs, "myFabs" };
 	FunctionInfo_dd f_fabs = { fabs, "fabs" };
 	DoubleForInfo cycle = { -10000, 10000, 0.001 };
@@ -85,6 +89,7 @@ void compareFabs() {
 	compareTime(&fc);
 }
 void compareCeil() {
+	printLine();
 	FunctionInfo_dd f_myCeil = { myCeil, "myCeil" };
 	FunctionInfo_dd f_ceil = { ceil, "ceil" };
 	DoubleForInfo cycle = { -5000, 5000, 0.001 };
@@ -92,6 +97,7 @@ void compareCeil() {
 	compareTime(&fc);
 }
 void compareFloor() {
+	printLine();
 	FunctionInfo_dd f_myFloor = { myFloor, "myFloor" };
 	FunctionInfo_dd f_floor = { floor, "floor" };
 	DoubleForInfo cycle = { -5000, 5000, 0.001 };
@@ -99,6 +105,7 @@ void compareFloor() {
 	compareTime(&fc);
 }
 void compareTrunc() {
+	printLine();
 	FunctionInfo_dd f_myTrunc = { myTrunc, "myTrunc" };
 	FunctionInfo_dd f_trunc = { trunc, "trunc" };
 	DoubleForInfo cycle = { -5000, 5000, 0.001 };
@@ -106,6 +113,7 @@ void compareTrunc() {
 	compareTime(&fc);
 }
 void compareRound() {
+	printLine();
 	FunctionInfo_dd f_myRound = { myRound, "myRound" };
 	FunctionInfo_dd f_round = { round, "round" };
 	DoubleForInfo cycle = { -5000, 5000, 0.001 };
@@ -113,6 +121,7 @@ void compareRound() {
 	compareTime(&fc);
 }
 void compareFmod() {
+	printLine();
 	FunctionInfo_ddd f_myFmod = { myFmod, "myFmod" };
 	FunctionInfo_ddd f_fmod = { fmod, "fmod" };
 	DoubleForInfo cycle1 = { -100, 100, 0.1 };
@@ -121,6 +130,7 @@ void compareFmod() {
 	compareTime(&fc);
 }
 void compareModf() {
+	printLine();
 	FunctionInfo_dddp f_myModf = { myModf, "myModf" };
 	FunctionInfo_dddp f_modf = { modf, "modf" };
 	DoubleForInfo cycle = { -5000, 5000, 0.001 };
@@ -128,6 +138,7 @@ void compareModf() {
 	compareTime(&fc);
 }
 void compareFrexp() {
+	printLine();
 	FunctionInfo_ddip f_myFrexp = { myFrexp, "myFrexp" };
 	FunctionInfo_ddip f_frexp = { frexp, "frexp" };
 	DoubleForInfo cycle = { -5000, 5000, 0.001 };
@@ -135,6 +146,7 @@ void compareFrexp() {
 	compareTime(&fc);
 }
 void compareLdexp() {
+	printLine();
 	FunctionInfo_ddi f_myLdexp = { myLdexp, "myLdexp" };
 	FunctionInfo_ddi f_ldexp = { ldexp, "ldexp" };
 	DoubleForInfo cycle = { -100, 100, 0.01 };
@@ -234,19 +246,19 @@ void printResult(unsigned long time1, unsigned long time2, char* name1, char* na
 	float d;
 	if (time1 < time2) {
 		d = (float)time2 / time1;
-		printf("\033[1;32m%s is %.2f times faster than %s\033[1;0m\n", name1, d, name2);
-		printf("\033[1;32m\t%s : %lu ms\033[1;0m\n", name1, time1);
-		printf("\033[1;32m\t%s : %lu ms\033[1;0m\n", name2, time2);
+		printf("%s is \033[1;32m%.2f times faster\033[1;0m than %s\n", name1, d, name2);
+		printf("\t%s : %lu ms\n", name1, time1);
+		printf("\t%s : %lu ms\n", name2, time2);
 	}
 	else if (time1 > time2) {
 		d = (float)time1 / time2;
-		printf("\033[1;31m%s is %.2f times slower than %s\033[1;0m\n", name1, d, name2);
-		printf("\033[1;31m\t%s : %lu ms\033[1;0m\n", name1, time1);
-		printf("\033[1;31m\t%s : %lu ms\033[1;0m\n", name2, time2);
+		printf("%s is \033[1;31m%.2f times slower\033[1;0m than %s\n", name1, d, name2);
+		printf("\t%s : %lu ms\n", name1, time1);
+		printf("\t%s : %lu ms\n", name2, time2);
 	}
 	else {
-		printf("\033[1;33m%s\'s time equals to %s\'s time\033[1;0m\n", name1, name2);
-		printf("\033[1;33m\t%s : %lu ms\033[1;0m\n", name1, time1);
-		printf("\033[1;33m\t%s : %lu ms\033[1;0m\n", name2, time2);
+		printf("%s\'s \033[1;33mtime equals\033[1;0m to %s\'s time\n", name1, name2);
+		printf("\t%s : %lu ms\n", name1, time1);
+		printf("\t%s : %lu ms\n", name2, time2);
 	}
 }
