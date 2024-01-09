@@ -196,7 +196,7 @@ int testFmod() {
 	double x, y;
 	for (double i = -100; i <= 100; i += 0.1) {
 		for (double j = -100; j <= 100; j += 0.1) {
-			if (abs(myFmod(i, j) - fmod(i, j) > EPSILON))
+			if (fabs(myFmod(i, j) - fmod(i, j) > EPSILON))
 				return -1;
 		}
 	}
@@ -329,7 +329,7 @@ int testFrexp() {
 int testLdexp() {
 	for (double i = -100; i <= 100; i += 0.01) {
 		for (int j = -30; j <= 31; j++) {
-			if (abs(myLdexp(i, j) - ldexp(i, j)) > EPSILON)
+			if (fabs(myLdexp(i, j) - ldexp(i, j)) > EPSILON)
 				return -1;
 		}
 	}
@@ -352,10 +352,56 @@ int testLdexp() {
 }
 
 int testSin() {
+	double x;
+	for (double i = -100; i <= 100; i += 0.01) {
+		if (fabs(mySin(i) - sin(i)) > EPSILON)
+			return -1;
+	}
 
+	x = POS_ZERO;
+	if (mySin(x) != x)
+		return -1;
+
+	x = NEG_ZERO;
+	if (mySin(x) != x)
+		return -1;
+
+	if (!isNan(mySin(POS_INFINITY)))
+		return -1;
+
+	if (!isNan(mySin(NEG_INFINITY)))
+		return -1;
+
+	if (!isNan(mySin(NaN)))
+		return -1;
+
+	return 0;
 }
 int testCos() {
+	double x;
+	for (double i = -100; i <= 100; i += 0.01) {
+		if (fabs(myCos(i) - cos(i)) > EPSILON)
+			return -1;
+	}
 
+	x = POS_ZERO;
+	if (myCos(x) != x)
+		return -1;
+
+	x = NEG_ZERO;
+	if (myCos(x) != x)
+		return -1;
+
+	if (!isNan(myCos(POS_INFINITY)))
+		return -1;
+
+	if (!isNan(myCos(NEG_INFINITY)))
+		return -1;
+
+	if (!isNan(myCos(NaN)))
+		return -1;
+
+	return 0;
 }
 int testTan() {
 

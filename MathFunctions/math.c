@@ -1,3 +1,5 @@
+#include "math.h"
+
 #define POS_INFINITY *(double*)&POS_INF_ULL
 #define NEG_INFINITY *(double*)&NEG_INF_ULL
 #define POS_ZERO *(double*)&POS_ZERO_ULL
@@ -6,6 +8,14 @@
 
 
 const double PI = 3.141592653589793238462643383279;
+const double TWO_PI = 6.283185307179586231995926937088;
+const double PI_OVER_TWO = 1.570796326794896557998981734272;
+const double PI_OVER_THREE = 1.047197551196597631317786181171;
+const double PI_OVER_FOUR = 0.785398163397448278999490867136;
+const double PI_OVER_SIX = 0.523598775598298815658893090585;
+const double THREE_PI_OVER_TWO = 4.712388980384689673996945202816;
+const double THREE_PI_OVER_FOUR = 2.356194490192344836998472601408;
+
 const double E = 2.718281828459045235360287471352;
 
 
@@ -16,7 +26,7 @@ const unsigned long long NEG_INF_ULL = 0xFFF0000000000000ull;
 const unsigned long long NaN_ULL = 0x7FF8000000000000ull;
 
 
-static const double EPSILON = 1e-12;
+static const double EPSILON = 1e-9;
 static const int BIAS = 1023;
 static const int MANTISSA_BITS = 52;
 static const int INF_NAN_EXP = 2047;
@@ -249,18 +259,62 @@ double myLdexp(double x, int y) {
 		return sign == 0 ? POS_ZERO : NEG_ZERO;
 	}
 
-	unsigned long long e = exp + y;
-	return sign | (e << MANTISSA_BITS) | getMantissa(x);
+	unsigned long long result = sign | ((unsigned long long)(exp + y) << MANTISSA_BITS) | getMantissa(x);
+	return *(double*)&result;
 }
 
 // sin - https://en.cppreference.com/w/c/numeric/math/sin
 double mySin(double x) {
+	if (x == POS_ZERO || x == NEG_ZERO)
+		return x;
+	if (x == POS_INFINITY || x == NEG_INFINITY || isNan(x))
+		return NaN;
 
+	x = myFmod(x, 2 * PI);
+	if (x < -PI) x += 2 * PI;
+	if (x > PI) x -= 2 * PI; // x - [-PI ; PI]
+
+	// Taylor series around pi/2
+	double t = myFabs(x) - PI / 2;
+	double t_squared = t * t;
+	double sum = 0;
+	int i = 1;
+	double current = 1;
+
+	do { 
+		sum += current;
+		current = -current * t_squared / ((2 * i) * (2 * i - 1));
+		i++;
+	} while (myFabs(current) >= EPSILON);
+
+	return x > 0 ? sum : -sum;
 }
 
 // cos - https://en.cppreference.com/w/c/numeric/math/cos
 double myCos(double x) {
+	if (x == POS_ZERO || x == NEG_ZERO)
+		return x;
+	if (x == POS_INFINITY || x == NEG_INFINITY || isNan(x))
+		return NaN;
 
+	x = myFmod(x, 2 * PI);
+	if (x < -PI) x += 2 * PI;
+	if (x > PI) x -= 2 * PI; // x - [-PI ; PI]
+
+	// Taylor series around pi/2
+	double sum = 0;
+	int i = 1;
+	double a = myFabs(x) - PI / 2;
+	double a_squared = a * a;
+
+	double current = -a;
+	do {
+		sum += current;
+		current = -current * a_squared / ((2 * i) * (2 * i + 1));
+		i++;
+	} while (myFabs(current) >= EPSILON);
+
+	return sum;
 }
 
 // tan - https://en.cppreference.com/w/c/numeric/math/tan

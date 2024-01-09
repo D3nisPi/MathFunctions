@@ -6,6 +6,7 @@
 #define NaN *(double*)&NaN_ULL
 
 extern const double PI;
+extern const double TWO_PI;
 extern const double E;
 
 extern const unsigned long long POS_INF_ULL;

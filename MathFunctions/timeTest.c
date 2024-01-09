@@ -177,10 +177,20 @@ void compareLdexp() {
 	compareTime(&fc);
 }
 void compareSin() {
-
+	printLine();
+	FunctionInfo_dd f_mySin = { mySin, "mySin" };
+	FunctionInfo_dd f_sin = { sin, "sin" };
+	DoubleForInfo cycle = { -1000, 1000, 0.001 };
+	FunctionComparison_dd fc = { &f_mySin, &f_sin, &cycle };
+	compareTime(&fc);
 }
 void compareCos() {
-
+	printLine();
+	FunctionInfo_dd f_myCos = { myCos, "myCos" };
+	FunctionInfo_dd f_cos = { cos, "cos" };
+	DoubleForInfo cycle = { -1000, 1000, 0.001 };
+	FunctionComparison_dd fc = { &f_myCos, &f_cos, &cycle };
+	compareTime(&fc);
 }
 void compareTan() {
 
