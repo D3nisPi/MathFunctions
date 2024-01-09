@@ -408,10 +408,50 @@ int testTan() {
 }
 
 int testAsin() {
+	double x;
+	for (double i = -1; i <= 1; i += 0.001) {
+		if (fabs(myAsin(i) - asin(i)) > EPSILON)
+			return -1;
+	}
 
+	x = POS_ZERO;
+	if (myAsin(x) != x)
+		return -1;
+
+	x = NEG_ZERO;
+	if (myAsin(x) != x)
+		return -1;
+
+	if (!isNan(myAsin(10)))
+		return -1;
+
+	if (!isNan(myAsin(-10)))
+		return -1;
+
+	if (!isNan(myAsin(NaN)))
+		return -1;
+
+	return 0;
 }
 int testAcos() {
+	for (double i = -1; i <= 1; i += 0.001) {
+		if (fabs(myAcos(i) - acos(i)) > EPSILON)
+			return -1;
+	}
 
+	if (myAcos(1) != POS_ZERO)
+		return -1;
+
+	if (!isNan(myAcos(10)))
+		return -1;
+
+	if (!isNan(myAcos(-10)))
+		return -1;
+
+	if (!isNan(myAcos(NaN)))
+		return -1;
+
+	return 0;
 }
 int testAtan() {
 

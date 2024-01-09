@@ -324,12 +324,37 @@ double myTan(double x) {
 
 // asin - https://en.cppreference.com/w/c/numeric/math/asin
 double myAsin(double x) {
+	double abs_x = myFabs(x);
 
+	if (x == POS_ZERO || x == NEG_ZERO)
+		return x;
+	if (abs_x > 1 || isNan(x))
+		return NaN;
+
+
+	if (abs_x > 0.5)
+		return myAsin(PI / 2 - myAsin(mySqrt((1 - x) / 2)));
+
+	// Taylor series
+	double sum = 0;
+	int i = 1;
+	double x_squared = x * x;
+	double current = myFabs(x);
+
+	do {
+		sum += current;
+		current = current * (x_squared * 2 * i * (2 * i - 1) * (2 * i - 1)) / (4 * i * i * (2 * i + 1));
+		i++;
+	} while (myFabs(current) >= EPSILON);
+
+	return x > 0 ? sum : -sum;
 }
 
 // acos - https://en.cppreference.com/w/c/numeric/math/acos
 double myAcos(double x) {
-
+	if (x == 1)
+		return POS_ZERO;
+	return PI_OVER_TWO - myAsin(x);
 }
 
 // atan - https://en.cppreference.com/w/c/numeric/math/atan
