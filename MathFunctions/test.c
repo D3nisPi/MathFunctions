@@ -13,7 +13,6 @@ void test(int (*testFunction)(void), char* name) {
 	else {
 		printf("\033[1;31m[~] - %s failed\033[1;0m\n", name);
 	}
-
 }
 void testAll() {
 	test(testAbs, "abs");

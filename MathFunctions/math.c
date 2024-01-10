@@ -25,7 +25,6 @@ const unsigned long long POS_INF_ULL = 0x7FF0000000000000ull;
 const unsigned long long NEG_INF_ULL = 0xFFF0000000000000ull;
 const unsigned long long NaN_ULL = 0x7FF8000000000000ull;
 
-
 static const double EPSILON = 1e-9;
 static const int BIAS = 1023;
 static const int MANTISSA_BITS = 52;
@@ -35,45 +34,17 @@ static const unsigned long long SIGN_MASK = 0x8000000000000000ull;
 static const unsigned long long EXP_MASK = 0x7FF0000000000000ull;
 static const unsigned long long FIRST_BIT_OF_MANTISSA_MASK = 0x0008000000000000ull;
 
-
-static int getIntExponent(double x) {
-	return ((*(unsigned long long*) & x) & EXP_MASK) >> MANTISSA_BITS;
-}
-static unsigned long long getExponentULL(double x) {
-	return (*(unsigned long long*) & x) & EXP_MASK;
-}
-static unsigned long long getMantissa(double x) {
-	return (*(unsigned long long*) & x) & MANTISSA_MASK;
-}
-static unsigned long long getSign(double x) {
-	return (*(unsigned long long*) & x) & SIGN_MASK;
-}
+#define getIntExponent(x) (((*(unsigned long long*) & x) & EXP_MASK) >> MANTISSA_BITS)
+#define getExponent_ULL(x) ((*(unsigned long long*) & x) & EXP_MASK)
+#define getMantissa(x) ((*(unsigned long long*) & x) & MANTISSA_MASK)
+#define getSign(x) ((*(unsigned long long*) & x) & SIGN_MASK)
 
 
-static unsigned long long getIntegerMantissaPart(double x, int exp) {
-	unsigned long long mask = ~(MANTISSA_MASK >> exp) & MANTISSA_MASK;
-	return (*(unsigned long long*) & x) & mask;
-}
-static unsigned long long getFractionalMantissaPart(double x, int exp) {
-	unsigned long long mask = MANTISSA_MASK >> exp;
-	return (*(unsigned long long*) & x) & mask;
-}
-static unsigned long long getFirstBitOfFractionalPart(double x, int exp) {
-	unsigned long long mask = FIRST_BIT_OF_MANTISSA_MASK >> exp;
-	return (*(unsigned long long*) & x) & mask;
-}
+#define getIntegerMantissaPart(x, exp) ((*(unsigned long long*) & x) & (~(MANTISSA_MASK >> exp) & MANTISSA_MASK))
+#define getFractionalMantissaPart(x, exp) ((*(unsigned long long*) & x) & (MANTISSA_MASK >> exp))
+#define getFirstBitOfFractionalPart(x, exp) ((*(unsigned long long*) & x) & (FIRST_BIT_OF_MANTISSA_MASK >> exp))
 
-
-const int isNan_(unsigned long long mantissa, int exp) {
-	return exp == INF_NAN_EXP && mantissa != 0;
-}
-const int isPosNegZero(unsigned long long mantissa, int exp) {
-	return exp == 0 && mantissa == 0;
-}
-const int isPosNegInfinity(unsigned long long mantissa, int exp) {
-	return exp == INF_NAN_EXP && mantissa == 0;
-}
-
+#define _isNan(x) (getExponent_ULL(x) == EXP_MASK && getMantissa(x) != 0)
 
 int isNan(double x) {
 	int exp = getIntExponent(x);
@@ -172,13 +143,13 @@ double myRound(double x) {
 
 // fmod - https://en.cppreference.com/w/c/numeric/math/fmod
 double myFmod(double x, double y) {
-	if (isNan(x) || isNan(y))
+	if (_isNan(x) || _isNan(y))
 		return NaN;
 	if ((x == POS_ZERO || x == NEG_ZERO) && y != 0)
 		return x;
-	if ((x == POS_INFINITY || x == NEG_INFINITY) && !isNan(y))
+	if ((x == POS_INFINITY || x == NEG_INFINITY) && !_isNan(y))
 		return NaN;
-	if ((y == POS_ZERO || y == NEG_ZERO) && !isNan(x))
+	if ((y == POS_ZERO || y == NEG_ZERO) && !_isNan(x))
 		return NaN;
 	if ((y == POS_INFINITY || y == NEG_INFINITY) && x != POS_INFINITY && x != NEG_INFINITY)
 		return x;
@@ -200,13 +171,13 @@ double myModf(double x, double* y) {
 		*y = x;
 		return POS_ZERO;
 	}
-	if (isNan(x)) {
+	if (_isNan(x)) {
 		*y = NaN;
 		return NaN;
 	}
 
 	unsigned long long sign = getSign(x);
-	unsigned long long exponent = getExponentULL(x);
+	unsigned long long exponent = getExponent_ULL(x);
 
 	int exp = (exponent >> MANTISSA_BITS) - BIAS;
 
@@ -254,7 +225,7 @@ double myFrexp(double x, int* y) {
 // if overflow occurs, POS_INF/NEG_INF is returned
 // if underflow occurs, POS_ZERO/NEG_ZERO is returned
 double myLdexp(double x, int y) {
-	if (isNan(x))
+	if (_isNan(x))
 		return NaN;
 	if (y == 0 || x == POS_INFINITY || x == NEG_INFINITY || x == POS_ZERO || x == NEG_ZERO)
 		return x;
@@ -279,7 +250,7 @@ double myLdexp(double x, int y) {
 double mySin(double x) {
 	if (x == POS_ZERO || x == NEG_ZERO)
 		return x;
-	if (x == POS_INFINITY || x == NEG_INFINITY || isNan(x))
+	if (x == POS_INFINITY || x == NEG_INFINITY || _isNan(x))
 		return NaN;
 
 	x = myFmod(x, 2 * PI);
@@ -306,7 +277,7 @@ double mySin(double x) {
 double myCos(double x) {
 	if (x == POS_ZERO || x == NEG_ZERO)
 		return x;
-	if (x == POS_INFINITY || x == NEG_INFINITY || isNan(x))
+	if (x == POS_INFINITY || x == NEG_INFINITY || _isNan(x))
 		return NaN;
 
 	x = myFmod(x, 2 * PI);
@@ -340,7 +311,7 @@ double myAsin(double x) {
 
 	if (x == POS_ZERO || x == NEG_ZERO)
 		return x;
-	if (abs_x > 1 || isNan(x))
+	if (abs_x > 1 || _isNan(x))
 		return NaN;
 
 

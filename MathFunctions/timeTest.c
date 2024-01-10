@@ -6,7 +6,7 @@
 #include <stdint.h>
 
 static void printError(void* arg, ...) {
-	printf(stderr, "An error occurred when using overloaded functions");
+	fprintf(stderr, "An error occurred when using overloaded functions");
 }
 
 // functions overloading
