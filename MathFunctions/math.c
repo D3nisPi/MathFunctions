@@ -97,41 +97,45 @@ double myFabs(register double x) {
 
 // ceil = https://en.cppreference.com/w/c/numeric/math/ceil
 double myCeil(double x) {
-	if (isNan(x))
-		return NaN;
 	if (x == POS_INFINITY || x == NEG_INFINITY || x == POS_ZERO || x == NEG_ZERO)
 		return x;
 
+	const int BIASED_NAN_EXPONENT = 1024;
 	int exp = getIntExponent(x) - BIAS;
+	unsigned long long mantissa = getMantissa(x);
+
+	if (exp == BIASED_NAN_EXPONENT && mantissa != 0) return NaN;
 
 	if (exp >= 52) return x;
 	if (exp <= -1) return (x < 0) ? 0 : 1; // (-1; 1)
 
-	unsigned long long fractional = getFractionalMantissaPart(x, exp);
-	if (fractional == 0) return x;
+	mantissa = mantissa & (MANTISSA_MASK >> exp);
+	if (mantissa == 0) return x;
 
-	unsigned long long result = *(unsigned long long*)&x ^ fractional;
-	double r = x > 0 ? *(double*)&result + 1 : *(double*)&result;
-	return r;
+	unsigned long long integer = *(unsigned long long*) & x ^ mantissa;
+	double result = *(double*)&integer;
+	return x > 0 ? result + 1 : result;
 }
 
 // floor - https://en.cppreference.com/w/c/numeric/math/floor
 double myFloor(double x) {
-	if (isNan(x))
-		return NaN;
 	if (x == POS_INFINITY || x == NEG_INFINITY || x == POS_ZERO || x == NEG_ZERO)
 		return x;
 
-
+	const int BIASED_NAN_EXPONENT = 1024;
 	int exp = getIntExponent(x) - BIAS;
+	unsigned long long mantissa = getMantissa(x);
+
+	if (exp == BIASED_NAN_EXPONENT && mantissa != 0) return NaN;
 	if (exp >= 52) return x;
 	if (exp <= -1) return (x < 0) ? -1 : 0; // (-1; 1)
 
-	unsigned long long fractional = getFractionalMantissaPart(x, exp);
-	if (fractional == 0) return x;
+	mantissa = mantissa & (MANTISSA_MASK >> exp);
+	if (mantissa == 0) return x;
 
-	unsigned long long result = *(unsigned long long*) & x ^ fractional;
-	return x > 0 ? *(double*)&result : *(double*)&result - 1;
+	unsigned long long integer = *(unsigned long long*) & x ^ mantissa;
+	double result = *(double*)&integer;
+	return x > 0 ? result : result - 1;
 }
 
 // trunc - https://en.cppreference.com/w/c/numeric/math/trunc
@@ -142,24 +146,28 @@ double myTrunc(double x) {
 
 // round - https://en.cppreference.com/w/c/numeric/math/round
 double myRound(double x) {
-	if (isNan(x))
-		return NaN;
 	if (x == POS_INFINITY || x == NEG_INFINITY || x == POS_ZERO || x == NEG_ZERO)
 		return x;
 
+	const int BIASED_NAN_EXPONENT = 1024;
 	int exp = getIntExponent(x) - BIAS;
+	unsigned long long mantissa = getMantissa(x);
+
+	if (exp == BIASED_NAN_EXPONENT && mantissa != 0) return NaN;
+
 	if (exp >= 52) return x;
 	if (exp == -1) return (x > 0) ? 1 : -1; // (-1; -0.5] & [0.5; 1)
 	if (exp <= -2) return 0; // (-0.5; 0.5)
 
-	unsigned long long fractional = getFractionalMantissaPart(x, exp);
-	if (fractional == 0) return x;
+	mantissa = mantissa & (MANTISSA_MASK >> exp);
+	if (mantissa == 0) return x;
+
+	unsigned long long integer = *(unsigned long long*) & x ^ mantissa;
+	double result = *(double*)&integer;
 
 	unsigned long long v = getFirstBitOfFractionalPart(x, exp);
-	unsigned long long result = *(unsigned long long*) & x ^ fractional;
-
-	if (v == 0) return *(double*)&result;
-	else return (x > 0) ? *(double*)&result + 1 : *(double*)&result - 1;
+	if (v == 0) return result;
+	else return (x > 0) ? result + 1 : result - 1;
 }
 
 // fmod - https://en.cppreference.com/w/c/numeric/math/fmod
@@ -369,12 +377,12 @@ double myAtan2(double x, double y) {
 
 // sinh - https://en.cppreference.com/w/c/numeric/math/sinh
 double mySinh(double x) {
-
+	
 }
 
 // cosh - https://en.cppreference.com/w/c/numeric/math/cosh
 double myCosh(double x) {
-
+	
 }
 
 // tanh - https://en.cppreference.com/w/c/numeric/math/tanh

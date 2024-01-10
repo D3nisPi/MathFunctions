@@ -199,7 +199,7 @@ void compareAsin() {
 	printLine();
 	FunctionInfo_dd f_myAsin = { myAsin, "myAsin" };
 	FunctionInfo_dd f_asin = { asin, "asin" };
-	DoubleForInfo cycle = { -1000, 1000, 0.001 };
+	DoubleForInfo cycle = { -1, 1, 0.000001 };
 	FunctionComparison_dd fc = { &f_myAsin, &f_asin, &cycle };
 	compareTime(&fc);
 }
@@ -207,7 +207,7 @@ void compareAcos() {
 	printLine();
 	FunctionInfo_dd f_myAcos = { myAcos, "myAcos" };
 	FunctionInfo_dd f_acos = { acos, "acos" };
-	DoubleForInfo cycle = { -1000, 1000, 0.001 };
+	DoubleForInfo cycle = { -1, 1, 0.000001 };
 	FunctionComparison_dd fc = { &f_myAcos, &f_acos, &cycle };
 	compareTime(&fc);
 }
@@ -218,10 +218,20 @@ void compareAtan2() {
 
 }
 void compareSinh() {
-
+	printLine();
+	FunctionInfo_dd f_mySinh = { mySinh, "mySinh" };
+	FunctionInfo_dd f_sinh = { sinh, "sinh" };
+	DoubleForInfo cycle = { -1000, 1000, 0.001 };
+	FunctionComparison_dd fc = { &f_mySinh, &f_sinh, &cycle };
+	compareTime(&fc);
 }
 void compareCosh() {
-
+	printLine();
+	FunctionInfo_dd f_myCosh = { myCosh, "myCosh" };
+	FunctionInfo_dd f_cosh = { cosh, "cosh" };
+	DoubleForInfo cycle = { -1000, 1000, 0.001 };
+	FunctionComparison_dd fc = { &f_myCosh, &f_cosh, &cycle };
+	compareTime(&fc);
 }
 void compareTanh() {
 

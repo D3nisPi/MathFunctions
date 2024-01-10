@@ -461,10 +461,60 @@ int testAtan2() {
 }
 
 int testSinh() {
+	double x;
+	for (double i = -1000; i <= 1000; i += 0.01) {
+		if (fabs(mySinh(i) - sinh(i)) > EPSILON)
+			return -1;
+	}
 
+	x = POS_ZERO;
+	if (mySinh(x) != x)
+		return -1;
+
+	x = NEG_ZERO;
+	if (mySinh(x) != x)
+		return -1;
+
+	x = POS_INFINITY;
+	if (mySinh(x) != x)
+		return -1;
+
+	x = NEG_INFINITY;
+	if (mySinh(x) != x)
+		return -1;
+
+	if (!isNan(mySinh(NaN)))
+		return -1;
+
+	return 0;
 }
 int testCosh() {
+	double x;
+	for (double i = -1000; i <= 1000; i += 0.01) {
+		if (fabs(myCosh(i) - cosh(i)) > EPSILON)
+			return -1;
+	}
 
+	x = POS_ZERO;
+	if (myCosh(x) != 1)
+		return -1;
+
+	x = NEG_ZERO;
+	if (myCosh(x) != 1)
+		return -1;
+
+	x = POS_INFINITY;
+	if (myCosh(x) != POS_INFINITY)
+		return -1;
+
+	x = NEG_INFINITY;
+	if (myCosh(x) != POS_INFINITY)
+		return -1;
+
+	if (!isNan(myCosh(NaN)))
+		return -1;
+
+	return 0;
 }
 int testTanh() {
 
