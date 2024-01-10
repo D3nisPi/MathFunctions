@@ -228,20 +228,24 @@ double myModf(double x, double* y) {
 
 // frexp - https://en.cppreference.com/w/c/numeric/math/frexp
 double myFrexp(double x, int* y) {
-	const unsigned long long MASK = 0x3FE0000000000000ull;
-
-	int exp = getIntExponent(x);
-	unsigned long long sign = getSign(x);
-	unsigned long long mantissa = getMantissa(x);
-
-	if (isPosNegZero(mantissa, exp)) { // +- 0
+	if (x == POS_ZERO || x == NEG_ZERO) {
 		*y = 0;
 		return x;
 	}
-	if (isPosNegInfinity(mantissa, exp)) return x; // +- inf
-	if (isNan_(mantissa, exp)) return NaN; // NaN
-	 
-	*y = exp - BIAS + 1;
+	if (x == POS_INFINITY || x == NEG_INFINITY)
+		return x;
+
+	const unsigned long long MASK = 0x3FE0000000000000ull;
+	const int BIASED_NAN_EXPONENT = 1024;
+
+	int exp = getIntExponent(x) - BIAS;
+	unsigned long long sign = getSign(x);
+	unsigned long long mantissa = getMantissa(x);
+
+	if (exp == BIASED_NAN_EXPONENT && mantissa != 0)
+		return NaN;
+
+	*y = exp + 1;
 	mantissa |= sign | MASK;
 	return *(double*)&mantissa;
 }
