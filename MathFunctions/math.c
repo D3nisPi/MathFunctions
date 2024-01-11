@@ -62,7 +62,6 @@ double myFabs(register double x) {
 	// +-0 -> +0
 	// +-inf -> +inf
 	// NaN -> NaN with plus sign (still NaN)
-
 	return x < 0 ? -x : x;
 }
 
@@ -171,16 +170,18 @@ double myModf(double x, double* y) {
 		*y = x;
 		return POS_ZERO;
 	}
-	if (_isNan(x)) {
-		*y = NaN;
-		return NaN;
-	}
+
+	const unsigned long long NAN_EXPONENT = 0x7FF0000000000000;
 
 	unsigned long long sign = getSign(x);
 	unsigned long long exponent = getExponent_ULL(x);
+	unsigned long long mantissa = getMantissa(x);
 
+	if (exponent == NAN_EXPONENT && mantissa != 0) {
+		*y = NaN;
+		return NaN;
+	}
 	int exp = (exponent >> MANTISSA_BITS) - BIAS;
-
 	if (exp >= 52) {
 		*y = x;
 		return 0;
@@ -190,7 +191,7 @@ double myModf(double x, double* y) {
 		return x;
 	}
 
-	unsigned long long integer = getIntegerMantissaPart(x, exp);
+	unsigned long long integer = mantissa & (~(MANTISSA_MASK >> exp) & MANTISSA_MASK);
 	unsigned long long i_result = sign | exponent | integer;
 
 	*y = *(double*)&i_result;
@@ -253,7 +254,7 @@ double mySin(double x) {
 	if (x == POS_INFINITY || x == NEG_INFINITY || _isNan(x))
 		return NaN;
 
-	x = myFmod(x, 2 * PI);
+	x = x - myTrunc(x / TWO_PI) * TWO_PI;
 	if (x < -PI) x += 2 * PI;
 	if (x > PI) x -= 2 * PI; // x - [-PI ; PI]
 
@@ -280,7 +281,7 @@ double myCos(double x) {
 	if (x == POS_INFINITY || x == NEG_INFINITY || _isNan(x))
 		return NaN;
 
-	x = myFmod(x, 2 * PI);
+	x = x - myTrunc(x / TWO_PI) * TWO_PI;
 	if (x < -PI) x += 2 * PI;
 	if (x > PI) x -= 2 * PI; // x - [-PI ; PI]
 
