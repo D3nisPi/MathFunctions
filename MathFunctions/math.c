@@ -25,7 +25,7 @@ const unsigned long long POS_INF_ULL = 0x7FF0000000000000ull;
 const unsigned long long NEG_INF_ULL = 0xFFF0000000000000ull;
 const unsigned long long NaN_ULL = 0x7FF8000000000000ull;
 
-static const double EPSILON = 1e-9;
+static const double EPSILON = 1e-11;
 static const int BIAS = 1023;
 static const int MANTISSA_BITS = 52;
 static const int INF_NAN_EXP = 2047;
@@ -305,7 +305,6 @@ double myCos(double x) {
 double myTan(double x) {
 
 }
-
 // asin - https://en.cppreference.com/w/c/numeric/math/asin
 double myAsin(double x) {
 	double abs_x = myFabs(x);
@@ -316,14 +315,17 @@ double myAsin(double x) {
 		return NaN;
 
 
-	if (abs_x > 0.5)
-		return myAsin(PI / 2 - myAsin(mySqrt((1 - x) / 2)));
+	if (x > 0.5)
+		return PI_OVER_TWO - 2 * myAsin(mySqrt((1 - x) / 2));
+	if (x < -0.5)
+		return -PI_OVER_TWO + 2 * myAsin(mySqrt((1 - abs_x) / 2));
+		
 
 	// Taylor series
 	double sum = 0;
 	int i = 1;
 	double x_squared = x * x;
-	double current = myFabs(x);
+	double current = abs_x;
 
 	do {
 		sum += current;

@@ -3,7 +3,7 @@
 #include "math.h"
 #include "test.h"
 
-static const double EPSILON = 1e-7;
+static const double EPSILON = 1e-10;
 
 void test(int (*testFunction)(void), char* name) {
 	int result = testFunction();
@@ -195,7 +195,7 @@ int testFmod() {
 	double x, y;
 	for (double i = -100; i <= 100; i += 0.1) {
 		for (double j = -100; j <= 100; j += 0.1) {
-			if (fabs(myFmod(i, j) - fmod(i, j) > EPSILON))
+			if (fabs(myFmod(i, j) - fmod(i, j)) > EPSILON)
 				return -1;
 		}
 	}
