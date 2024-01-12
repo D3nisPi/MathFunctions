@@ -39,18 +39,12 @@ static const unsigned long long FIRST_BIT_OF_MANTISSA_MASK = 0x0008000000000000u
 #define getMantissa(x) ((*(unsigned long long*) & x) & MANTISSA_MASK)
 #define getSign(x) ((*(unsigned long long*) & x) & SIGN_MASK)
 
-
 #define getIntegerMantissaPart(x, exp) ((*(unsigned long long*) & x) & (~(MANTISSA_MASK >> exp) & MANTISSA_MASK))
 #define getFractionalMantissaPart(x, exp) ((*(unsigned long long*) & x) & (MANTISSA_MASK >> exp))
 #define getFirstBitOfFractionalPart(x, exp) ((*(unsigned long long*) & x) & (FIRST_BIT_OF_MANTISSA_MASK >> exp))
 
-#define _isNan(x) (getExponent_ULL(x) == EXP_MASK && getMantissa(x) != 0)
 
-int isNan(double x) {
-	int exp = getIntExponent(x);
-	unsigned long long mantissa = getMantissa(x);
-	return exp == INF_NAN_EXP && mantissa != 0;
-}
+
 // abs - https://en.cppreference.com/w/c/numeric/math/abs
 int myAbs(register int x) {
 	return x < 0 ? -x : x;
@@ -62,7 +56,7 @@ double myFabs(register double x) {
 	// +-0 -> +0
 	// +-inf -> +inf
 	// NaN -> NaN with plus sign (still NaN)
-	return x < 0 ? -x : x;
+	return x <= NEG_ZERO ? -x : x;
 }
 
 // ceil = https://en.cppreference.com/w/c/numeric/math/ceil
@@ -142,13 +136,13 @@ double myRound(double x) {
 
 // fmod - https://en.cppreference.com/w/c/numeric/math/fmod
 double myFmod(double x, double y) {
-	if (_isNan(x) || _isNan(y))
+	if (isNan(x) || isNan(y))
 		return NaN;
 	if ((x == POS_ZERO || x == NEG_ZERO) && y != 0)
 		return x;
-	if ((x == POS_INFINITY || x == NEG_INFINITY) && !_isNan(y))
+	if ((x == POS_INFINITY || x == NEG_INFINITY) && !isNan(y))
 		return NaN;
-	if ((y == POS_ZERO || y == NEG_ZERO) && !_isNan(x))
+	if ((y == POS_ZERO || y == NEG_ZERO) && !isNan(x))
 		return NaN;
 	if ((y == POS_INFINITY || y == NEG_INFINITY) && x != POS_INFINITY && x != NEG_INFINITY)
 		return x;
@@ -168,7 +162,7 @@ double myModf(double x, double* y) {
 	}
 	if (x == NEG_INFINITY) {
 		*y = x;
-		return POS_ZERO;
+		return NEG_ZERO;
 	}
 
 	const unsigned long long NAN_EXPONENT = 0x7FF0000000000000;
@@ -226,7 +220,7 @@ double myFrexp(double x, int* y) {
 // if overflow occurs, POS_INF/NEG_INF is returned
 // if underflow occurs, POS_ZERO/NEG_ZERO is returned
 double myLdexp(double x, int y) {
-	if (_isNan(x))
+	if (isNan(x))
 		return NaN;
 	if (y == 0 || x == POS_INFINITY || x == NEG_INFINITY || x == POS_ZERO || x == NEG_ZERO)
 		return x;
@@ -251,7 +245,7 @@ double myLdexp(double x, int y) {
 double mySin(double x) {
 	if (x == POS_ZERO || x == NEG_ZERO)
 		return x;
-	if (x == POS_INFINITY || x == NEG_INFINITY || _isNan(x))
+	if (x == POS_INFINITY || x == NEG_INFINITY || isNan(x))
 		return NaN;
 
 	x = x - myTrunc(x / TWO_PI) * TWO_PI;
@@ -278,7 +272,7 @@ double mySin(double x) {
 double myCos(double x) {
 	if (x == POS_ZERO || x == NEG_ZERO)
 		return x;
-	if (x == POS_INFINITY || x == NEG_INFINITY || _isNan(x))
+	if (x == POS_INFINITY || x == NEG_INFINITY || isNan(x))
 		return NaN;
 
 	x = x - myTrunc(x / TWO_PI) * TWO_PI;
@@ -311,7 +305,7 @@ double myAsin(double x) {
 
 	if (x == POS_ZERO || x == NEG_ZERO)
 		return x;
-	if (abs_x > 1 || _isNan(x))
+	if (abs_x > 1 || isNan(x))
 		return NaN;
 
 
@@ -345,19 +339,97 @@ double myAcos(double x) {
 
 // atan - https://en.cppreference.com/w/c/numeric/math/atan
 double myAtan(double x) {
+	if (x == POS_ZERO || x == NEG_ZERO)
+		return x;
+	if (x == POS_INFINITY)
+		return PI_OVER_TWO;
+	if (x == NEG_INFINITY)
+		return -PI_OVER_TWO;
+	if (isNan(x))
+		return NaN;
 
+	if (x > 1)
+		return PI_OVER_TWO - myAtan(1 / x);
+	if (x < -1)
+		return -PI_OVER_TWO - myAtan(1 / x);
+
+	// Taylor series around 0
+	double ax = myFabs(x);
+	double sum = 0;
+	int i = 1;
+	double x2 = x * x;
+
+	double current = ax / (1 + x2);
+	do {
+		sum += current;
+		current *= x2 / (1 + x2) * (2 * i) / (2 * i + 1);
+		i++;
+	} while (current >= EPSILON);
+
+	return x > 0 ? sum : -sum;
 }
 
 // atan2 - https://en.cppreference.com/w/c/numeric/math/atan2
-double myAtan2(double x, double y) {
+double myAtan2(double y, double x) {
+	if (isPosZero(y)) {
+		if (x > POS_ZERO || isPosZero(x))
+			return POS_ZERO;
+		else
+			return PI;
+	}
+	if (isNegZero(y)) {
+		if (x > POS_ZERO || isPosZero(x))
+			return NEG_ZERO;
+		else
+			return -PI;
+	}
+	if (y == POS_INFINITY) {
+		if (x == POS_INFINITY)
+			return PI_OVER_FOUR;
+		else if (x == NEG_INFINITY)
+			return THREE_PI_OVER_FOUR;
+		else
+			return PI_OVER_TWO;
+	}
+	if (y == NEG_INFINITY) {
+		if (x == POS_INFINITY)
+			return -PI_OVER_FOUR;
+		else if (x == NEG_INFINITY)
+			return -THREE_PI_OVER_FOUR;
+		else
+			return -PI_OVER_TWO;
+	}
+	if (x == POS_ZERO || x == NEG_ZERO) {
+		if (y < 0)
+			return -PI_OVER_TWO;
+		else if (y > 0)
+			return PI_OVER_TWO;
+	}
+	if (x == NEG_INFINITY) {
+		if (y > 0 && y != POS_INFINITY)
+			return PI;
+		else if (y < 0 && y != NEG_INFINITY)
+			return -PI;
+	}
+	if (x == POS_INFINITY) {
+		if (y > 0 && y != POS_INFINITY)
+			return POS_ZERO;
+		else if (y < 0 && y != NEG_INFINITY)
+			return NEG_ZERO;
+	}
+	if (isNan(x) || isNan(y))
+		return NaN;
 
+	if (x < 0 && y < 0) return -PI + myAtan(y / x);
+	if (x < 0 && y > 0) return PI + myAtan(y / x);
+	return myAtan(y / x);
 }
 
 // sinh - https://en.cppreference.com/w/c/numeric/math/sinh
 double mySinh(double x) {
 	if (x == POS_ZERO || x == NEG_ZERO || x == POS_INFINITY || x == NEG_INFINITY)
 		return x;
-	if (_isNan(x))
+	if (isNan(x))
 		return NaN;
 
 	double ex = myExp(x);
@@ -370,7 +442,7 @@ double myCosh(double x) {
 		return 1;
 	if (x == POS_INFINITY || x == NEG_INFINITY)
 		return POS_INFINITY;
-	if (_isNan(x))
+	if (isNan(x))
 		return NaN;
 
 	double ex = myExp(x);
@@ -385,7 +457,7 @@ double myTanh(double x) {
 		return 1;
 	if (x == NEG_INFINITY)
 		return - 1;
-	if (_isNan(x))
+	if (isNan(x))
 		return NaN;
 
 	double ex = myExp(x);

@@ -212,10 +212,21 @@ void compareAcos() {
 	compareTime(&fc);
 }
 void compareAtan() {
-
+	printLine();
+	FunctionInfo_dd f_myAtan = { myAtan, "myAtan" };
+	FunctionInfo_dd f_atan = { atan, "atan" };
+	DoubleForInfo cycle = { -1000, 1000, 0.001 };
+	FunctionComparison_dd fc = { &f_myAtan, &f_atan, &cycle };
+	compareTime(&fc);
 }
 void compareAtan2() {
-
+	printLine();
+	FunctionInfo_ddd f_myAtan2 = { myAtan2, "myAtan2" };
+	FunctionInfo_ddd f_atan2 = { atan2, "atan2" };
+	DoubleForInfo cycle1 = { -100, 100, 0.1 };
+	DoubleForInfo cycle2 = { -100, 100, 0.1 };
+	FunctionComparison_ddd fc = { &f_myAtan2, &f_atan2, &cycle1, &cycle2 };
+	compareTime(&fc);
 }
 void compareSinh() {
 	printLine();
