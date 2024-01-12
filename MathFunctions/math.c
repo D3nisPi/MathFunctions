@@ -355,17 +355,42 @@ double myAtan2(double x, double y) {
 
 // sinh - https://en.cppreference.com/w/c/numeric/math/sinh
 double mySinh(double x) {
-	
+	if (x == POS_ZERO || x == NEG_ZERO || x == POS_INFINITY || x == NEG_INFINITY)
+		return x;
+	if (_isNan(x))
+		return NaN;
+
+	double ex = myExp(x);
+	return (ex - 1 / ex) / 2;
 }
 
 // cosh - https://en.cppreference.com/w/c/numeric/math/cosh
 double myCosh(double x) {
-	
+	if (x == POS_ZERO || x == NEG_ZERO)
+		return 1;
+	if (x == POS_INFINITY || x == NEG_INFINITY)
+		return POS_INFINITY;
+	if (_isNan(x))
+		return NaN;
+
+	double ex = myExp(x);
+	return (ex + 1 / ex) / 2;
 }
 
 // tanh - https://en.cppreference.com/w/c/numeric/math/tanh
 double myTanh(double x) {
+	if (x == POS_ZERO || x == NEG_ZERO)
+		return x;
+	if (x == POS_INFINITY)		
+		return 1;
+	if (x == NEG_INFINITY)
+		return - 1;
+	if (_isNan(x))
+		return NaN;
 
+	double ex = myExp(x);
+	double oneOverEx = 1 / ex;
+	return (ex - oneOverEx) / (ex + oneOverEx);
 }
 
 // exp - https://en.cppreference.com/w/c/numeric/math/exp

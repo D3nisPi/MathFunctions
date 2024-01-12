@@ -4,6 +4,14 @@
 #include "test.h"
 
 static const double EPSILON = 1e-10;
+// Compare sign, exponent and 34 first digits of mantissa (~10 decimal digits accuracy)
+static int compareBits(double x, double y) {
+	const unsigned long long MASK = 0xFFFFFFFFFFFC0000ull;
+	unsigned long long ux = *(unsigned long long*) & x;
+	unsigned long long uy = *(unsigned long long*) & y;
+	return ((ux & MASK) == (uy & MASK));
+}
+
 
 void test(int (*testFunction)(void), char* name) {
 	int result = testFunction();
@@ -462,7 +470,7 @@ int testAtan2() {
 int testSinh() {
 	double x;
 	for (double i = -1000; i <= 1000; i += 0.01) {
-		if (fabs(mySinh(i) - sinh(i)) > EPSILON)
+		if (compareBits(mySinh(i), sinh(i)))
 			return -1;
 	}
 
@@ -490,7 +498,7 @@ int testSinh() {
 int testCosh() {
 	double x;
 	for (double i = -1000; i <= 1000; i += 0.01) {
-		if (fabs(myCosh(i) - cosh(i)) > EPSILON)
+		if (compareBits(myCosh(i), cosh(i)))
 			return -1;
 	}
 
@@ -516,7 +524,32 @@ int testCosh() {
 	return 0;
 }
 int testTanh() {
+	double x;
+	for (double i = -1000; i <= 1000; i += 0.01) {
+		if (compareBits(myTanh(i), tanh(i)))
+			return -1;
+	}
 
+	x = POS_ZERO;
+	if (myTanh(x) != x)
+		return -1;
+
+	x = NEG_ZERO;
+	if (myTanh(x) != x)
+		return -1;
+	x = POS_INFINITY;
+	if (myTanh(x) != 1)
+		return -1;
+
+	x = NEG_INFINITY;
+	if (myTanh(x) != -1)
+		return -1;
+
+	x = NaN;
+	if (!isNan(myTanh(x)))
+		return -1;
+
+	return 0;
 }
 
 int testExp() {
