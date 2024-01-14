@@ -785,5 +785,34 @@ int testPow() {
 
 }
 int testSqrt() {
+	double x, res;
+	for (double i = 0; i <= 1000; i += 0.001) {
+		if (fabs(mySqrt(i) - sqrt(i)) > EPSILON) {
+			return -1;
+		}
+	}
 
+	x = -1;
+	res = mySqrt(x);
+	if (!isNan(res))
+		return -1;
+
+	x = POS_INFINITY;
+	if (mySqrt(x) != x)
+		return -1;
+
+	x = POS_ZERO;
+	if (mySqrt(x) != x)
+		return -1;
+
+	x = NEG_ZERO;
+	if (mySqrt(x) != x)
+		return -1;
+
+	x = NaN;
+	res = mySqrt(x);
+	if (!isNan(res))
+		return -1;
+
+	return 0;
 }

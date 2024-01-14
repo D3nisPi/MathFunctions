@@ -265,7 +265,12 @@ void comparePow() {
 
 }
 void compareSqrt() {
-
+	printLine();
+	FunctionInfo_dd f_mySqrt = { mySqrt, "mySqrt" };
+	FunctionInfo_dd f_sqrt = { sqrt, "sqrt" };
+	DoubleForInfo cycle = { 0, 1000, 0.001 };
+	FunctionComparison_dd fc = { &f_mySqrt, &f_sqrt, &cycle };
+	compareTime(&fc);
 }
 
 

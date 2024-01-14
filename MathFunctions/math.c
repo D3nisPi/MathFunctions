@@ -487,5 +487,37 @@ double myPow(double x, double y) {
 
 // sqrt - https://en.cppreference.com/w/c/numeric/math/sqrt
 double mySqrt(double x) {
+	if (x < NEG_ZERO || isNan(x))
+		return NaN;
+	if (x == POS_ZERO || x == NEG_ZERO || x == POS_INFINITY)
+		return x;
 
+
+	const double SQRT_OF_TWO = 1.414213562373095145474621858739;
+	const unsigned long long BIASED_ZERO_EXPONENT = 0x3FF0000000000000ull;
+
+	int exp = getIntExponent(x) - BIAS;
+	unsigned long long mantissa = getMantissa(x) | BIASED_ZERO_EXPONENT;
+	double result = 1;
+
+	if (exp & 1 != 0) {
+		result = SQRT_OF_TWO;
+		exp--;
+	}
+
+	exp /= 2;
+
+	if (exp != 0) {
+		unsigned long long a = ((unsigned long long)(exp + BIAS) << MANTISSA_BITS);
+		result *= *(double*)&a;
+	}
+
+
+	double m = *(double*)&mantissa;
+	double reciprocalRoot = 1;
+	for (int i = 0; i < 6; i++) {
+		reciprocalRoot = 0.5 * reciprocalRoot * (3 - m * reciprocalRoot * reciprocalRoot);
+	}
+
+	return result * reciprocalRoot * m;
 }
