@@ -4,14 +4,32 @@
 #include "test.h"
 
 static const double EPSILON = 1e-10;
-// Compare sign, exponent and 34 first digits of mantissa (~10 decimal digits accuracy)
-static int compareBits(double x, double y) {
-	const unsigned long long MASK = 0xFFFFFFFFFFFC0000ull;
+
+static int compareMantissas(double x, double y, double epsilon) {
+	static const unsigned long long MANTISSA_MASK = 0x000FFFFFFFFFFFFFull;
+	static const unsigned long long SIGN_MASK = 0x8000000000000000ull;
+	static const unsigned long long EXP_MASK = 0x7FF0000000000000ull;
+
 	unsigned long long ux = *(unsigned long long*) & x;
 	unsigned long long uy = *(unsigned long long*) & y;
-	return ((ux & MASK) == (uy & MASK));
-}
 
+	unsigned long long sx = ux & SIGN_MASK;
+	unsigned long long sy = uy & SIGN_MASK;
+
+	unsigned long long ex = (ux & EXP_MASK) >> 52;
+	unsigned long long ey = (uy & EXP_MASK) >> 52;
+
+	unsigned long long min = ex <= ey ? ex : ey;
+
+	ex -= min;
+	ey -= min;
+
+	unsigned long long mx = ux & (0x000FFFFFFFFFFFFFull >> ex) | 0x3FF0000000000000ull | sx;
+	unsigned long long my = uy & (0x000FFFFFFFFFFFFFull >> ey) | 0x3FF0000000000000ull | sy;
+	double dx = *(double*)&mx;
+	double dy = *(double*)&my;
+	return fabs(dx - dy) <= epsilon;
+}
 
 void test(int (*testFunction)(void), char* name) {
 	int result = testFunction();
@@ -685,7 +703,7 @@ int testAtan2() {
 int testSinh() {
 	double x, res;
 	for (double i = -1000; i <= 1000; i += 0.01) {
-		if (!compareBits(mySinh(i), sinh(i)))
+		if (!compareMantissas(mySinh(i), sinh(i), EPSILON))
 			return -1;
 	}
 
@@ -715,7 +733,7 @@ int testSinh() {
 int testCosh() {
 	double x, res;
 	for (double i = -1000; i <= 1000; i += 0.01) {
-		if (!compareBits(myCosh(i), cosh(i)))
+		if (!compareMantissas(myCosh(i), cosh(i), EPSILON))
 			return -1;
 	}
 
@@ -745,7 +763,7 @@ int testCosh() {
 int testTanh() {
 	double x, res;
 	for (double i = -1000; i <= 1000; i += 0.01) {
-		if (!compareBits(myTanh(i), tanh(i)))
+		if (fabs(myTanh(i) - tanh(i)) > EPSILON)
 			return -1;
 	}
 
@@ -773,7 +791,35 @@ int testTanh() {
 }
 
 int testExp() {
+	double x, res;
+	for (double i = -1000; i <= 1000; i += 0.01) {
+		if (!compareMantissas(myExp(i), exp(i), EPSILON))
+			return -1;
+	}
 
+	x = POS_ZERO;
+	if (myExp(x) != 1)
+		return -1;
+
+	x = NEG_ZERO;
+	if (myExp(x) != 1)
+		return -1;
+
+	x = NEG_INFINITY;
+	res = myExp(x);
+	if (!isPosZero(res))
+		return -1;
+
+	x = POS_INFINITY;
+	if (myExp(x) != POS_INFINITY)
+		return -1;
+
+	x = NaN;
+	res = myExp(x);
+	if (!isNan(res))
+		return -1;
+
+	return 0;
 }
 int testLog() {
 

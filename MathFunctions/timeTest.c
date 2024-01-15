@@ -253,7 +253,12 @@ void compareTanh() {
 	compareTime(&fc);
 }
 void compareExp() {
-
+	printLine();
+	FunctionInfo_dd f_myExp = { myExp, "myExp" };
+	FunctionInfo_dd f_exp = { exp, "exp" };
+	DoubleForInfo cycle = { -750, 750, 0.001 };
+	FunctionComparison_dd fc = { &f_myExp, &f_exp, &cycle };
+	compareTime(&fc);
 }
 void compareLog() {
 

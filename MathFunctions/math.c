@@ -43,6 +43,8 @@ static const unsigned long long FIRST_BIT_OF_MANTISSA_MASK = 0x0008000000000000u
 #define getFractionalMantissaPart(x, exp) ((*(unsigned long long*) & x) & (MANTISSA_MASK >> exp))
 #define getFirstBitOfFractionalPart(x, exp) ((*(unsigned long long*) & x) & (FIRST_BIT_OF_MANTISSA_MASK >> exp))
 
+#define pow2(x) (1 - 0.15639e-16 + (0.69314718055995154416 + (0.24022650695869054994 + (0.55504108675285271942e-1 + (0.96181289721472527028e-2 + (0.13333568212100120656e-2 + (0.15403075872034576440e-3 + (0.15265399313676342402e-4 + (0.13003468358428470167e-5 + 0.12113766044841794408e-6 * (x)) * (x)) * (x)) * (x)) * (x)) * (x)) * (x)) * (x)) * (x))
+
 
 
 // abs - https://en.cppreference.com/w/c/numeric/math/abs
@@ -467,7 +469,60 @@ double myTanh(double x) {
 
 // exp - https://en.cppreference.com/w/c/numeric/math/exp
 double myExp(double x) {
+	if (x == POS_ZERO || x == NEG_ZERO)
+		return 1;
+	if (x == NEG_INFINITY)
+		return POS_ZERO;	
+	if (x == POS_INFINITY)
+		return POS_INFINITY;
+	if (isNan(x))
+		return NaN;
 
+	const double SQRT_OF_TWO = 1.414213562373095145474621858739;
+	const double LOG2_E = 1.442695040888963387004650940071;
+
+	// e^x = 2 ^ (x * log_2(e))
+	double y = x * LOG2_E;
+
+	if (y <= -1074) return POS_ZERO;
+	if (y >= 1024) return POS_INFINITY;
+
+	double integer;
+	double fractional;
+
+	// modf
+	unsigned long long sign = getSign(y);
+	unsigned long long exponent = getExponent_ULL(y);
+	unsigned long long mantissa = getMantissa(y);
+
+	int exp = (exponent >> MANTISSA_BITS) - BIAS;
+
+	if (exp <= -1) {
+		integer = 0;
+		fractional = y;
+	}
+	else {
+		unsigned long long i_result = sign | exponent | (mantissa & (~(MANTISSA_MASK >> exp) & MANTISSA_MASK));
+		integer = *(double*)&i_result;
+		fractional = y - integer;
+	}
+
+
+	// fractional part should be non-negative
+	if (fractional < 0) {
+		integer--;
+		fractional++;
+	}
+
+	// 
+	double fracPowered = fractional <= 0.5 ? pow2(fractional) : SQRT_OF_TWO * pow2(fractional - 0.5);
+	unsigned long long intPowered;
+
+	// denormalize the number if underflow occurs
+	if (integer <= -1023) intPowered = 0x0010000000000000ull >> (-(long long)integer - 1022);
+	else intPowered = ((long long)integer + 1023) << 52;
+
+	return  *(double*)&intPowered * fracPowered;
 }
 
 // log - https://en.cppreference.com/w/c/numeric/math/log
