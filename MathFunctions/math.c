@@ -434,8 +434,13 @@ double mySinh(double x) {
 	if (isNan(x))
 		return NaN;
 
-	double ex = myExp(x);
-	return (ex - 1 / ex) / 2;
+	const double LN_ONE_OVER_TWO = -0.693147180559945286226763982995;
+	
+	// e^x / 2 = e^(x + ln(0.5))
+	// e^(-x) = 1 / e^(x + ln(0.5)) * 2ln(0.5) = 0.25 * e^(x + ln(0.5))
+	double ex = myExp(x + LN_ONE_OVER_TWO);
+	double res = ex - 0.25 / ex ;
+	return res;
 }
 
 // cosh - https://en.cppreference.com/w/c/numeric/math/cosh
@@ -447,8 +452,13 @@ double myCosh(double x) {
 	if (isNan(x))
 		return NaN;
 
-	double ex = myExp(x);
-	return (ex + 1 / ex) / 2;
+	const double LN_ONE_OVER_TWO = -0.693147180559945286226763982995;
+
+	// e^x / 2 = e^(x + ln(0.5))
+	// e^(-x) = 1 / e^(x + ln(0.5)) * 2ln(0.5) = 0.25 * e^(x + ln(0.5))
+	double ex = myExp(x + LN_ONE_OVER_TWO);
+	double res = ex + 0.25 / ex;
+	return res;
 }
 
 // tanh - https://en.cppreference.com/w/c/numeric/math/tanh

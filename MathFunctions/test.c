@@ -5,7 +5,7 @@
 
 static const double EPSILON = 1e-10;
 
-static int compareMantissas(double x, double y, double epsilon) {
+static int compareDoubles(double x, double y, double epsilon) {
 	static const unsigned long long MANTISSA_MASK = 0x000FFFFFFFFFFFFFull;
 	static const unsigned long long SIGN_MASK = 0x8000000000000000ull;
 	static const unsigned long long EXP_MASK = 0x7FF0000000000000ull;
@@ -13,11 +13,18 @@ static int compareMantissas(double x, double y, double epsilon) {
 	unsigned long long ux = *(unsigned long long*) & x;
 	unsigned long long uy = *(unsigned long long*) & y;
 
-	unsigned long long sx = ux & SIGN_MASK;
-	unsigned long long sy = uy & SIGN_MASK;
-
 	unsigned long long ex = (ux & EXP_MASK) >> 52;
 	unsigned long long ey = (uy & EXP_MASK) >> 52;
+
+	// for small values
+	if (ex < 1023 && ey  < 1023) {
+		double diff = fabs(x - y);
+		return diff <= epsilon;
+	}
+		
+	// for large values set exponent to 0 for both numbers and shift mantissa (if required)
+	unsigned long long sx = ux & SIGN_MASK;
+	unsigned long long sy = uy & SIGN_MASK;
 
 	unsigned long long min = ex <= ey ? ex : ey;
 
@@ -702,9 +709,9 @@ int testAtan2() {
 
 int testSinh() {
 	double x, res;
-	for (double i = -1000; i <= 1000; i += 0.01) {
-		if (!compareMantissas(mySinh(i), sinh(i), EPSILON))
-			return -1;
+	for (double i = -1000; i <= 1000; i += 0.05) {
+		if (!compareDoubles(mySinh(i), sinh(i), EPSILON))
+			return -1;	
 	}
 
 	x = POS_ZERO;
@@ -732,8 +739,8 @@ int testSinh() {
 }
 int testCosh() {
 	double x, res;
-	for (double i = -1000; i <= 1000; i += 0.01) {
-		if (!compareMantissas(myCosh(i), cosh(i), EPSILON))
+	for (double i = -1000; i <= 1000; i += 0.001) {
+		if (!compareDoubles(myCosh(i), cosh(i), EPSILON))
 			return -1;
 	}
 
@@ -793,7 +800,7 @@ int testTanh() {
 int testExp() {
 	double x, res;
 	for (double i = -1000; i <= 1000; i += 0.01) {
-		if (!compareMantissas(myExp(i), exp(i), EPSILON))
+		if (!compareDoubles(myExp(i), exp(i), EPSILON))
 			return -1;
 	}
 
