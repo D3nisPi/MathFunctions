@@ -709,7 +709,7 @@ int testAtan2() {
 
 int testSinh() {
 	double x, res;
-	for (double i = -1000; i <= 1000; i += 0.05) {
+	for (double i = -1000; i <= 1000; i += 0.001) {
 		if (!compareDoubles(mySinh(i), sinh(i), EPSILON))
 			return -1;	
 	}
@@ -799,7 +799,7 @@ int testTanh() {
 
 int testExp() {
 	double x, res;
-	for (double i = -1000; i <= 1000; i += 0.01) {
+	for (double i = -1000; i <= 1000; i += 0.001) {
 		if (!compareDoubles(myExp(i), exp(i), EPSILON))
 			return -1;
 	}
@@ -829,7 +829,40 @@ int testExp() {
 	return 0;
 }
 int testLog() {
+	double x, res;
+	for (double i = 0; i <= 1000; i += 0.001) {
+		if (!compareDoubles(myLog(i), log(i), EPSILON))
+			return -1;
+	}
 
+	x = POS_ZERO;
+	if (myLog(x) != NEG_INFINITY)
+		return -1;
+
+	x = NEG_ZERO;
+	if (myLog(x) != NEG_INFINITY)
+		return -1;
+
+	x = 1;
+	res = myLog(x);
+	if (!isPosZero(res))
+		return -1;
+
+	x = -1;
+	res = myLog(x);
+	if (!isNan(res))
+		return -1;
+
+	x = POS_INFINITY;
+	if (myLog(x) != POS_INFINITY)
+		return -1;
+
+	x = NaN;
+	res = myLog(x);
+	if (!isNan(res))
+		return -1;
+
+	return 0;
 }
 int testLog10() {
 

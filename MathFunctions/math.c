@@ -44,7 +44,7 @@ static const unsigned long long FIRST_BIT_OF_MANTISSA_MASK = 0x0008000000000000u
 #define getFirstBitOfFractionalPart(x, exp) ((*(unsigned long long*) & x) & (FIRST_BIT_OF_MANTISSA_MASK >> exp))
 
 #define pow2(x) (1 - 0.15639e-16 + (0.69314718055995154416 + (0.24022650695869054994 + (0.55504108675285271942e-1 + (0.96181289721472527028e-2 + (0.13333568212100120656e-2 + (0.15403075872034576440e-3 + (0.15265399313676342402e-4 + (0.13003468358428470167e-5 + 0.12113766044841794408e-6 * (x)) * (x)) * (x)) * (x)) * (x)) * (x)) * (x)) * (x)) * (x))
-
+#define ln(u, u2) (u * (2 + u2 * (0.666666666666666 + u2 * (0.4 + u2 * (0.285714285714285 + u2 * (0.222222222222222 + u2 * (0.181818181818181 + u2 * (0.153846153846153 + u2 * 0.133333333333333))))))))
 
 
 // abs - https://en.cppreference.com/w/c/numeric/math/abs
@@ -537,7 +537,28 @@ double myExp(double x) {
 
 // log - https://en.cppreference.com/w/c/numeric/math/log
 double myLog(double x) {
+	if (x == POS_ZERO || x == NEG_ZERO)
+		return NEG_INFINITY;
+	if (x == 1)
+		return POS_ZERO;
+	if (x < 0)
+		return NaN;
+	if (x == POS_INFINITY)
+		return POS_INFINITY;
+	if (isNan(x))
+		return NaN;
 
+	const double LN_2 = 0.693147180559945286226763982995;
+	const double ONE_OVER_QBRT_E = 0.778800783071404878477039801510;
+	const unsigned long long MASK = 0x3FF0000000000000ull;
+
+	int exp = getIntExponent(x) - BIAS;
+	unsigned long long mantissa = getMantissa(x) | MASK; // [1; 2)
+	double m = (*(double*)&mantissa) * ONE_OVER_QBRT_E; // [0.78; 1.56)
+
+	double u = (m - 1) / (m + 1);
+	double u2 = u * u;
+	return ln(u, u2) + 0.25 + exp * LN_2;
 }
 
 // log10 - https://en.cppreference.com/w/c/numeric/math/log10
