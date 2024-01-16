@@ -17,7 +17,7 @@ static int compareDoubles(double x, double y, double epsilon) {
 	unsigned long long ey = (uy & EXP_MASK) >> 52;
 
 	// for small values
-	if (ex < 1023 && ey  < 1023) {
+	if (ex <= 1023 || ey  <= 1023) {
 		double diff = fabs(x - y);
 		return diff <= epsilon;
 	}
@@ -31,8 +31,9 @@ static int compareDoubles(double x, double y, double epsilon) {
 	ex -= min;
 	ey -= min;
 
-	unsigned long long mx = ux & (0x000FFFFFFFFFFFFFull >> ex) | 0x3FF0000000000000ull | sx;
-	unsigned long long my = uy & (0x000FFFFFFFFFFFFFull >> ey) | 0x3FF0000000000000ull | sy;
+	unsigned long long mx = (ux & MANTISSA_MASK) | sx | ((ex + 1023) << 52);
+	unsigned long long my = (uy & MANTISSA_MASK) | sy | ((ey + 1023) << 52);
+
 	double dx = *(double*)&mx;
 	double dy = *(double*)&my;
 	return fabs(dx - dy) <= epsilon;
