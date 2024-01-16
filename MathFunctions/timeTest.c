@@ -269,7 +269,12 @@ void compareLog() {
 	compareTime(&fc);
 }
 void compareLog10() {
-
+	printLine();
+	FunctionInfo_dd f_myLog10 = { myLog10, "myLog10" };
+	FunctionInfo_dd f_log10 = { log10, "log10" };
+	DoubleForInfo cycle = { 0, 10000, 0.001 };
+	FunctionComparison_dd fc = { &f_myLog10, &f_log10, &cycle };
+	compareTime(&fc);
 }
 void comparePow() {
 

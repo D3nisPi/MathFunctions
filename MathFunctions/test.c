@@ -866,7 +866,40 @@ int testLog() {
 	return 0;
 }
 int testLog10() {
+	double x, res;
+	for (double i = 0; i <= 1000; i += 0.001) {
+		if (!compareDoubles(myLog10(i), log10(i), EPSILON))
+			return -1;
+	}
 
+	x = POS_ZERO;
+	if (myLog(x) != NEG_INFINITY)
+		return -1;
+
+	x = NEG_ZERO;
+	if (myLog(x) != NEG_INFINITY)
+		return -1;
+
+	x = 1;
+	res = myLog(x);
+	if (!isPosZero(res))
+		return -1;
+
+	x = -1;
+	res = myLog(x);
+	if (!isNan(res))
+		return -1;
+
+	x = POS_INFINITY;
+	if (myLog(x) != POS_INFINITY)
+		return -1;
+
+	x = NaN;
+	res = myLog(x);
+	if (!isNan(res))
+		return -1;
+
+	return 0;
 }
 int testPow() {
 

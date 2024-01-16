@@ -524,7 +524,6 @@ double myExp(double x) {
 		fractional++;
 	}
 
-	// 
 	double fracPowered = fractional <= 0.5 ? pow2(fractional) : SQRT_OF_TWO * pow2(fractional - 0.5);
 	unsigned long long intPowered;
 
@@ -563,7 +562,32 @@ double myLog(double x) {
 
 // log10 - https://en.cppreference.com/w/c/numeric/math/log10
 double myLog10(double x) {
+	if (x == POS_ZERO || x == NEG_ZERO)
+		return NEG_INFINITY;
+	if (x == 1)
+		return POS_ZERO;
+	if (x < 0)
+		return NaN;
+	if (x == POS_INFINITY)
+		return POS_INFINITY;
+	if (isNan(x))
+		return NaN;
 
+	// log10(x) = ln(x) / ln(10) = ln(x) * log10(e)
+
+	const double LOG10_E = 0.434294481903251816667932416749;
+	const double LN_2 = 0.693147180559945286226763982995;
+	const double ONE_OVER_QBRT_E = 0.778800783071404878477039801510;
+	const unsigned long long MASK = 0x3FF0000000000000ull;
+
+	int exp = getIntExponent(x) - BIAS;
+	unsigned long long mantissa = getMantissa(x) | MASK; // [1; 2)
+	double m = (*(double*)&mantissa) * ONE_OVER_QBRT_E; // [0.78; 1.56)
+
+	double u = (m - 1) / (m + 1);
+	double u2 = u * u;
+
+	return LOG10_E * (ln(u, u2) + 0.25 + exp * LN_2);
 }
 
 // pow - https://en.cppreference.com/w/c/numeric/math/pow
