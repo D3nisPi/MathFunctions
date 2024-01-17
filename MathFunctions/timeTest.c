@@ -193,7 +193,12 @@ void compareCos() {
 	compareTime(&fc);
 }
 void compareTan() {
-
+	printLine();
+	FunctionInfo_dd f_myTan = { myTan, "myTan" };
+	FunctionInfo_dd f_tan = { tan, "tan" };
+	DoubleForInfo cycle = { -1000, 1000, 0.001 };
+	FunctionComparison_dd fc = { &f_myTan, &f_tan, &cycle };
+	compareTime(&fc);
 }
 void compareAsin() {
 	printLine();

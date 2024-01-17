@@ -492,7 +492,36 @@ int testCos() {
 	return 0;
 }
 int testTan() {
+	double x, res;
+	for (double i = -100; i <= 100; i += 0.01) {
+		if (!compareDoubles(myTan(i), tan(i), EPSILON))
+			return -1;
+	}
 
+	x = POS_ZERO;
+	if (mySin(x) != x)
+		return -1;
+
+	x = NEG_ZERO;
+	if (myTan(x) != x)
+		return -1;
+
+	x = POS_INFINITY;
+	res = myTan(x);
+	if (!isNan(res))
+		return -1;
+
+	x = NEG_INFINITY;
+	res = myTan(x);
+	if (!isNan(res))
+		return -1;
+
+	x = NaN;
+	res = myTan(x);
+	if (!isNan(res))
+		return -1;
+
+	return 0;
 }
 
 int testAsin() {
