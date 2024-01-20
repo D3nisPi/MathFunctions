@@ -22,8 +22,8 @@ extern const unsigned long long NEG_ZERO_ULL;
 extern const unsigned long long NaN_ULL;
 
 #define isNan(x) (((*(unsigned long long*) & x) & 0x7FF0000000000000ull) == 0x7FF0000000000000ull && ((*(unsigned long long*) & x) & 0x000FFFFFFFFFFFFFull) != 0)
-#define isPosZero(x) ((*(unsigned long long*) & x) == 0x0000000000000000ull)
-#define isNegZero(x) ((*(unsigned long long*) & x) == 0x8000000000000000ull)
+#define isPosZero(x) ((*(unsigned long long*) & x) == POS_ZERO_ULL)
+#define isNegZero(x) ((*(unsigned long long*) & x) == NEG_ZERO_ULL)
 
 
 int myAbs(int x);

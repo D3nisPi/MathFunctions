@@ -47,6 +47,30 @@ static const unsigned long long FIRST_BIT_OF_MANTISSA_MASK = 0x0008000000000000u
 #define ln(u, u2) (u * (2 + u2 * (0.666666666666666 + u2 * (0.4 + u2 * (0.285714285714285 + u2 * (0.222222222222222 + u2 * (0.181818181818181 + u2 * (0.153846153846153 + u2 * 0.133333333333333))))))))
 
 
+#define isEven(x, exp) (x == 1 || x == -1 || (((*(unsigned long long*)&x) & (MANTISSA_MASK >> (exp - 1))) != 0))
+#define isOdd(x, exp) (!isEven(x, exp))
+#define isInteger(x, exp) (x == -1 || x == 0 || x == 1 || (exp > 0 && (exp >= 52 || getFractionalMantissaPart(x, exp) == 0)))  
+#define isNonInteger(x, exp) (!isInteger(x, exp))
+#define isOddInteger(x, exp) (isInteger(x, exp) && isOdd(x, exp))
+#define isEvenInteger(x, exp) (isInteger(x, exp) && isEven(x, exp))
+#define isNonIntegerOrEvenInteger(x, exp) (isNonInteger(x, exp) || isEven(x, exp))
+#define isZero(x) (x == POS_ZERO) // +0 == -0
+#define isInfinite(x) (x == NEG_INFINITY || x == POS_INFINITY) 
+#define isFinite(x) (x != POS_INFINITY && x != NEG_INFINITY)
+#define isPositive(x) (x > POS_ZERO)
+#define isNegative(x) (x < NEG_ZERO)
+#define isPositiveFinite(x) (x > POS_ZERO && x != POS_INFINITY)
+#define isNegativeFinite(x) (x < NEG_ZERO && x != NEG_INFINITY)
+#define isNegativeNonInteger(x, exp) (isNegativeFinite(x) && isNonInteger(x, exp))
+#define isPositiveNonInteger(x, exp) (isPositiveFinite(x) && isNonInteger(x, exp))
+#define isNegativeOddInteger(x, exp) (isNegativeFinite(x) && isOddInteger(x, exp))
+#define isPositiveOddInteger(x, exp) (isPositiveFinite(x) && isOddInteger(x, exp))
+#define isNegativeEvenInteger(x, exp) (isNegativeFinite(x) && isEvenInteger(x, exp))
+#define isPositiveEvenInteger(x, exp) (isPositiveFinite(x) && isEvenInteger(x, exp))
+
+
+
+
 // abs - https://en.cppreference.com/w/c/numeric/math/abs
 int myAbs(register int x) {
 	return x < 0 ? -x : x;
@@ -590,9 +614,128 @@ double myLog10(double x) {
 	return LOG10_E * (ln(u, u2) + 0.25 + exp * LN_2);
 }
 
+double myLog2(double x) {
+	const double LOG2_E = 1.442695040888963387004650940071;
+	const double ONE_OVER_QBRT_E = 0.778800783071404878477039801510;
+	const unsigned long long MASK = 0x3FF0000000000000ull;
+
+	int exp = getIntExponent(x) - BIAS;
+	unsigned long long mantissa = getMantissa(x) | MASK; // [1; 2)
+	double m = (*(double*)&mantissa) * ONE_OVER_QBRT_E; // [0.78; 1.56)
+
+	double u = (m - 1) / (m + 1);
+	double u2 = u * u;
+	return (ln(u, u2) + 0.25) * LOG2_E + exp;
+}
+
 // pow - https://en.cppreference.com/w/c/numeric/math/pow
 double myPow(double x, double y) {
 
+	int yExp = getIntExponent(y) - BIAS;
+
+	if (isPosZero(x) && isNegativeOddInteger(y, yExp))
+		return POS_INFINITY;
+	if (isNegZero(x) && isNegativeOddInteger(y, yExp))
+		return NEG_INFINITY;
+	if (isZero(x) && isNegativeFinite(y) && isNonIntegerOrEvenInteger(y, yExp))
+		return POS_INFINITY;
+	if (isZero(x) && y == NEG_INFINITY)
+		return POS_INFINITY;
+	if (isPosZero(x) && isPositiveOddInteger(y, yExp))
+		return POS_ZERO;
+	if (isNegZero(x) && isPositiveOddInteger(y, yExp))
+		return NEG_ZERO;
+	if (isZero(x) && isPositiveFinite(y) && isNonIntegerOrEvenInteger(y, yExp))
+		return POS_ZERO;
+	if (x == -1 && isInfinite(y))
+		return 1;
+	if (x == 1)
+		return 1;
+	if (isZero(y))
+		return 1;
+	if (isNegativeFinite(x) && isFinite(y) && isNonInteger(y, yExp))
+		return NaN;
+	if (y == NEG_INFINITY) {
+		if (-1 < x && x < 1)
+			return POS_INFINITY;
+		else
+			return POS_ZERO;
+	}
+	if (y == POS_INFINITY) {
+		if (-1 < x && x < 1)
+			return POS_ZERO;
+		else
+			return POS_INFINITY;
+	}
+	if (x == NEG_INFINITY) {
+		if (isNegative(y)) {
+			if (isOddInteger(y, yExp))
+				return NEG_ZERO;
+			else if (isNonIntegerOrEvenInteger(y, yExp))
+				return POS_ZERO;
+		}
+		else {
+			if (isOddInteger(y, yExp))
+				return NEG_INFINITY;
+			else if (isNonIntegerOrEvenInteger(y, yExp))
+				return POS_INFINITY;
+		}
+	}
+	if (x == POS_INFINITY) {
+		if (isNegative(y))
+			return POS_ZERO;
+		else
+			return POS_INFINITY;
+	}
+	if (isNan(x) || isNan(y))
+		return NaN;
+
+	// z = 2^(y * log_2(x))
+
+	const double SQRT_OF_TWO = 1.414213562373095145474621858739;
+	double xAbs = myFabs(x);
+	double power = y * myLog2(xAbs);
+
+	if (power <= -1074) return POS_ZERO;
+	if (power >= 1024) return POS_INFINITY;
+
+	double integer;
+	double fractional;
+
+	///modf
+
+	unsigned long long sign = getSign(power);
+	unsigned long long exponent = getExponent_ULL(power);
+	unsigned long long mantissa = getMantissa(power);
+	int exp = (exponent >> MANTISSA_BITS) - BIAS;
+
+	if (exp <= -1) {
+		integer = 0;
+		fractional = power;
+	}
+	else {
+		unsigned long long i_result = sign | exponent | (mantissa & (~(MANTISSA_MASK >> exp) & MANTISSA_MASK));
+		integer = *(double*)&i_result;
+		fractional = power - integer;
+	}
+
+
+	if (fractional < 0) {
+		integer--;
+		fractional++;
+	}
+
+	double fracPowered = fractional <= 0.5 ? pow2(fractional) : SQRT_OF_TWO * pow2(fractional - 0.5);
+	unsigned long long intPowered;
+
+	if (integer <= -1023) { // underflow
+		intPowered = 0x0010000000000000ull >> (-(long long)integer - 1022);
+	}
+	else {
+		intPowered = ((long long)integer + 1023) << 52;
+	}
+
+	return  *(double*)&intPowered * fracPowered;
 }
 
 // sqrt - https://en.cppreference.com/w/c/numeric/math/sqrt

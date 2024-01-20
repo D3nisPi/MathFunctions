@@ -282,7 +282,13 @@ void compareLog10() {
 	compareTime(&fc);
 }
 void comparePow() {
-
+	printLine();
+	FunctionInfo_ddd f_myPow = { myPow, "myPow" };
+	FunctionInfo_ddd f_pow = { pow, "pow" };
+	DoubleForInfo cycle1 = { -50, 50, 0.1 };
+	DoubleForInfo cycle2 = { -10, 10, 0.01 };
+	FunctionComparison_ddd fc = { &f_myPow, &f_pow, &cycle1, &cycle2 };
+	compareTime(&fc);
 }
 void compareSqrt() {
 	printLine();

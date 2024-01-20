@@ -931,7 +931,194 @@ int testLog10() {
 	return 0;
 }
 int testPow() {
+	double x, y, res;
+	for (double i = 0; i <= 10; i += 0.1) {
+		for (double j = 0; j <= 10; j += 0.1) {
+			if (!compareDoubles(myPow(i, j), pow(i, j), EPSILON))
+				return -1;
+		}
+	}
 
+	x = POS_ZERO;
+	y = -2;
+	if (myPow(x, y) != POS_INFINITY)
+		return -1;
+
+	x = NEG_ZERO;
+	y = -2;
+	if (myPow(x, y) != NEG_INFINITY)
+		return -1;
+
+	x = POS_ZERO;
+	y = -1;
+	if (myPow(x, y) != POS_INFINITY)
+		return -1;
+
+	x = NEG_ZERO;
+	y = -1;
+	if (myPow(x, y) != POS_INFINITY)
+		return -1;
+
+	x = POS_ZERO;
+	y = -1.5;
+	if (myPow(x, y) != POS_INFINITY)
+		return -1;
+
+	x = NEG_ZERO;
+	y = -1.5;
+	if (myPow(x, y) != POS_INFINITY)
+		return -1;
+
+	x = POS_ZERO;
+	y = NEG_INFINITY;
+	if (myPow(x, y) != POS_INFINITY)
+		return -1;
+
+	x = NEG_ZERO;
+	y = NEG_INFINITY;
+	if (myPow(x, y) != POS_INFINITY)
+		return -1;
+
+	x = POS_ZERO;
+	y = 2;
+	if (myPow(x, y) != POS_ZERO)
+		return -1;
+
+	x = NEG_ZERO;
+	y = 2;
+	if (myPow(x, y) != NEG_ZERO)
+		return -1;
+
+	x = POS_ZERO;
+	y = 1;
+	if (myPow(x, y) != POS_ZERO)
+		return -1;
+
+	x = NEG_ZERO;
+	y = 1;
+	if (myPow(x, y) != POS_ZERO)
+		return -1;
+
+	x = POS_ZERO;
+	y = 1.5;
+	if (myPow(x, y) != POS_ZERO)
+		return -1;
+
+	x = NEG_ZERO;
+	y = 1.5;
+	if (myPow(x, y) != POS_ZERO)
+		return -1;
+
+	x = -1;
+	y = NEG_INFINITY;
+	if (myPow(x, y) != 1)
+		return -1;
+
+	x = -1;
+	y = POS_INFINITY;
+	if (myPow(x, y) != 1)
+		return -1;
+
+	x = 1;
+	y = NaN;
+	if (myPow(x, y) != 1)
+		return -1;
+
+	x = NaN;
+	y = POS_ZERO;
+	if (myPow(x, y) != 1)
+		return -1;
+
+	x = NaN;
+	y = NEG_ZERO;
+	if (myPow(x, y) != 1)
+		return -1;
+
+	x = -1;
+	y = 1.5;
+	res = myPow(x, y);
+	if (!isNan(res))
+		return -1;
+
+	x = 0.5;
+	y = NEG_INFINITY;
+	if (myPow(x, y) != POS_INFINITY)
+		return -1;
+
+	x = 1.5;
+	y = NEG_INFINITY;
+	if (myPow(x, y) != POS_ZERO)
+		return -1;
+
+	x = 0.5;
+	y = POS_INFINITY;
+	if (myPow(x, y) != POS_ZERO)
+		return -1;
+
+	x = 1.5;
+	y = POS_INFINITY;
+	if (myPow(x, y) != POS_INFINITY)
+		return -1;
+
+	x = NEG_INFINITY;
+	y = -2;
+	if (myPow(x, y) != NEG_ZERO)
+		return -1;
+
+	x = NEG_INFINITY;
+	y = -1;
+	if (myPow(x, y) != POS_ZERO)
+		return -1;
+
+	x = NEG_INFINITY;
+	y = -1.5;
+	if (myPow(x, y) != POS_ZERO)
+		return -1;
+
+	x = NEG_INFINITY;
+	y = 2;
+	if (myPow(x, y) != NEG_INFINITY)
+		return -1;
+
+	x = NEG_INFINITY;
+	y = 1;
+	if (myPow(x, y) != POS_INFINITY)
+		return -1;
+
+	x = NEG_INFINITY;
+	y = 1.5;
+	if (myPow(x, y) != POS_INFINITY)
+		return -1;
+
+	x = POS_INFINITY;
+	y = -1;
+	if (myPow(x, y) != POS_ZERO)
+		return -1;
+
+	x = POS_INFINITY;
+	y = 1;
+	if (myPow(x, y) != POS_INFINITY)
+		return -1;
+
+	x = NaN;
+	y = 10;
+	res = myPow(x, y);
+	if (!isNan(res))
+		return -1;
+
+	x = 10;
+	y = NaN;
+	res = myPow(x, y);
+	if (!isNan(res))
+		return -1;
+
+	x = NaN;
+	y = NaN;
+	res = myPow(x, y);
+	if (!isNan(res))
+		return -1;
+
+	return 0;
 }
 int testSqrt() {
 	double x, res;
