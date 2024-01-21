@@ -1,5 +1,5 @@
 #pragma once
-
+#include <stdint.h>
 
 typedef struct {
 	double start;
@@ -107,14 +107,14 @@ void compareSqrt(void);
 
 void timeTestAll();
 
-void printResult(unsigned long time1, unsigned long time2, char* name1, char* name2);
+void printResult(uint64_t time1, uint64_t time2, char* name1, char* name2);
 
-unsigned long testTime_DoubleDouble(double (*function)(double), DoubleForInfo* cycle);
-unsigned long testTime_IntInt(int (*function)(int), IntForInfo* cycle);
-unsigned long testTime_DoubleDoubleDouble(double (*function)(double, double), DoubleForInfo* cycle1, DoubleForInfo* cycle2);
-unsigned long testTime_DoubleDoubleDoubleref(double (*function)(double, double*), DoubleForInfo* cycle1);
-unsigned long testTime_DoubleDoubleIntref(double (*function)(double, int*), DoubleForInfo* cycle1);
-unsigned long testTime_DoubleDoubleInt(double (*function)(double, int), DoubleForInfo* cycle1, IntForInfo* cycle2);
+uint64_t testTime_DoubleDouble(double (*function)(double), DoubleForInfo* cycle);
+uint64_t testTime_IntInt(int (*function)(int), IntForInfo* cycle);
+uint64_t testTime_DoubleDoubleDouble(double (*function)(double, double), DoubleForInfo* cycle1, DoubleForInfo* cycle2);
+uint64_t testTime_DoubleDoubleDoubleref(double (*function)(double, double*), DoubleForInfo* cycle1);
+uint64_t testTime_DoubleDoubleIntref(double (*function)(double, int*), DoubleForInfo* cycle1);
+uint64_t testTime_DoubleDoubleInt(double (*function)(double, int), DoubleForInfo* cycle1, IntForInfo* cycle2);
 
 void compareTime_DoubleDouble(FunctionComparison_dd*);
 void compareTime_IntInt(FunctionComparison_ii*);
