@@ -323,7 +323,44 @@ double myCos(double x) {
 
 // tan - https://en.cppreference.com/w/c/numeric/math/tan
 double myTan(double x) {
+	if (x == POS_ZERO || x == NEG_ZERO)
+		return x;
+	if (x == POS_INFINITY || x == NEG_INFINITY || isNan(x))
+		return NaN;
 
+	x = x - myTrunc(x / PI) * PI;
+	if (x < -PI_OVER_TWO) x += PI;
+	if (x > PI_OVER_TWO) x -= PI;
+
+
+	double xAbs = myFabs(x);
+	int useCotan = 0;
+
+	// tan(x) = cot(PI_OVER_TWO - x)
+	if (xAbs > PI_OVER_FOUR) {
+		xAbs = PI_OVER_TWO - xAbs;
+		useCotan = 1;
+	}
+
+	// cosine
+	double x2 = xAbs * xAbs;
+	double current = 1;
+	double cosine = 1;
+	for (int i = 1; i < 6; i++) {
+		current *= -x2 / ((2 * i) * (2 * i - 1));
+		cosine += current;
+	}
+
+	// sine
+	current = xAbs;
+	double sine = xAbs;
+	for (int i = 1; i < 6; i++) {
+		current *= -x2 / ((2 * i) * (2 * i + 1));
+		sine += current;
+	}
+
+	double result = useCotan ? cosine / sine : sine / cosine;
+	return x > 0 ? result : -result;
 }
 // asin - https://en.cppreference.com/w/c/numeric/math/asin
 double myAsin(double x) {

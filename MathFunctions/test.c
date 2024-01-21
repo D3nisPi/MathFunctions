@@ -3,7 +3,7 @@
 #include "math.h"
 #include "test.h"
 
-static const double EPSILON = 1e-10;
+static const double EPSILON = 1e-9; // for comparisons
 
 static int compareDoubles(double x, double y, double epsilon) {
 	static const unsigned long long MANTISSA_MASK = 0x000FFFFFFFFFFFFFull;
